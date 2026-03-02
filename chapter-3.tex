@@ -1,0 +1,121 @@
+\newpage
+\chapter{METODE PENELITIAN} \label{Bab III}
+
+\section{Alur Penelitian} \label{III.Alur}
+Pada penelitian ini, alur dirancang untuk memastikan setiap tahapan pemrosesan dilakukan secara sistematis dan efisien. Penelitian ini mengikuti metodologi eksperimental yang sistematis untuk membandingkan performa \textit{EfficientNet-B0}, \textit{Vision Transformer} (ViT-B/16), dan \textit{ensemble} heterogen dari kedua model dalam klasifikasi citra informasi krisis. Alur penelitian mencerminkan langkah-langkah utama dari studi literatur hingga analisis pertukaran (\textit{trade-off}), sebagaimana digambarkan dalam diagram alir pada Gambar \ref{fig:3.alur}. \par
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{figure/flowchart.jpg}
+    \caption{Alur Penelitian}
+    \label{fig:3.alur}
+\end{figure}
+
+
+\section{Penjabaran Langkah Penelitian} \label{III.JabarAlur}
+Berikut adalah penjelasan dari setiap langkah pada alur penelitian yang telah digambarkan dalam \textit{flowchart} di subbab \ref{III.Alur}. \par
+
+\subsection{Studi Literatur} \label{III.Langkah1}
+Tahap awal penelitian melakukan studi literatur mendalam tentang klasifikasi citra untuk respons bencana, arsitektur \textit{EfficientNet}, \textit{Vision Transformer}, \textit{ensemble learning}, dan metrik evaluasi. Studi literatur juga mencakup penelitian terdahulu yang menggunakan \textit{dataset} \textit{CrisisMMD} untuk memahami performa \textit{state-of-the-art} dan pendekatan yang telah dilakukan. Literatur yang dikaji mencakup paper dari konferensi dan jurnal terkemuka dalam bidang \textit{computer vision} dan respons bencana, dengan fokus pada publikasi terbaru (2021--2024) untuk memastikan relevansi dengan perkembangan teknologi terkini. \par
+
+\subsection{Preparasi Dataset} \label{III.Langkah2}
+\textit{Dataset} \textit{CrisisMMD} diunduh dari repositori resmi dan diorganisir sesuai dengan tugas klasifikasi yang akan dievaluasi. \textit{Dataset} dibagi menjadi \textit{training set}, \textit{validation set}, dan \textit{test set} menggunakan \textit{split} yang telah disediakan oleh \textit{dataset} untuk memastikan perbandingan yang adil dengan penelitian sebelumnya. Statistik \textit{dataset} dianalisis untuk memahami distribusi kelas dan karakteristik data, termasuk analisis ketidakseimbangan kelas dan distribusi jenis bencana. \par
+
+Analisis eksploratori data meliputi distribusi jumlah citra per kelas untuk kedua tugas klasifikasi, distribusi jenis bencana dalam \textit{dataset}, analisis kualitas citra (resolusi, aspek rasio, kondisi pencahayaan), serta identifikasi potensi \textit{outliers} atau citra berkualitas rendah. \par
+
+\subsection{Preprocessing Citra} \label{III.Langkah3}
+\textit{Preprocessing} dilakukan untuk memastikan citra dalam format yang sesuai untuk input model. Citra di-\textit{resize} ke ukuran input yang sesuai dengan arsitektur model. \textit{EfficientNet-B0} menggunakan ukuran input 224$\times$224 piksel sesuai dengan spesifikasi arsitektur, sementara ViT-B/16 menggunakan ukuran input 384$\times$384 piksel untuk memaksimalkan performa \cite{dosovitskiy2021image}. Nilai piksel dinormalisasi menggunakan \textit{mean} dan \textit{standard deviation} dari \textit{dataset ImageNet} (mean: [0.485, 0.456, 0.406], std: [0.229, 0.224, 0.225]) untuk kompatibilitas dengan bobot \textit{pretrained}. \par
+
+Pada \textit{training set}, augmentasi data diterapkan untuk meningkatkan generalisasi dan mengurangi \textit{overfitting}, meliputi \textit{random horizontal flip} dengan probabilitas 0.5, \textit{random rotation} $\pm$15° dengan probabilitas 0.3, \textit{color jitter} (brightness: $\pm$0.2, contrast: $\pm$0.2, saturation: $\pm$0.2) dengan probabilitas 0.3, serta \textit{random resized crop} dengan skala 0.8--1.0. Augmentasi tidak diterapkan pada \textit{validation set} dan \textit{test set} untuk memastikan evaluasi yang konsisten. \par
+
+\subsection{Implementasi Model EfficientNet-B0} \label{III.Langkah4}
+\textit{EfficientNet-B0} digunakan sebagai representasi CNN modern yang efisien. Implementasi menggunakan bobot \textit{pretrained} dari \textit{ImageNet-1k} yang tersedia di pustaka \textit{torchvision} atau \textit{timm} (PyTorch Image Models). Arsitektur \textit{EfficientNet-B0} terdiri dari \textit{stem} (konvolusi 3$\times$3 dengan 32 filter), 7 blok MBConv dengan ekspansi bertahap dari 16 hingga 320 kanal, \textit{head} (konvolusi 1$\times$1, \textit{global average pooling}, dan \textit{dropout}), serta \textit{classification layer} berupa \textit{fully connected layer} dengan jumlah output sesuai tugas (2 untuk \textit{Informative Classification}, 7 untuk \textit{Humanitarian Categories}). Total parameter \textit{EfficientNet-B0} adalah sekitar 5.3 juta parameter. \par
+
+\subsection{Implementasi Model Vision Transformer (ViT-B/16)} \label{III.Langkah5}
+ViT-B/16 digunakan sebagai representasi \textit{pure transformer} untuk \textit{computer vision}. Implementasi menggunakan bobot \textit{pretrained} dari \textit{ImageNet-21k} yang kemudian di-\textit{fine-tune} pada \textit{ImageNet-1k}, tersedia di pustaka \textit{timm}. Arsitektur ViT-B/16 terdiri dari \textit{patch embedding} (membagi citra 384$\times$384 menjadi 576 \textit{patch} berukuran 16$\times$16), \textit{positional encoding} berupa vektor posisi yang dapat dipelajari, 12 \textit{layer Transformer encoder} (dimensi tersembunyi: 768; jumlah \textit{attention heads}: 12; dimensi \textit{feedforward}: 3072; \textit{dropout rate}: 0.1), serta \textit{classification head} berupa \textit{layer normalization} dan \textit{linear layer}. Total parameter ViT-B/16 adalah sekitar 86 juta parameter. \par
+
+\subsection{Implementasi Ensemble Heterogen} \label{III.Langkah6}
+Dua strategi \textit{ensemble} diimplementasikan untuk menggabungkan prediksi dari \textit{EfficientNet-B0} dan ViT-B/16. Pada strategi \textit{simple averaging}, kedua model mendapat bobot yang sama dan prediksi \textit{ensemble} dihitung sebagai rata-rata probabilitas. Pada strategi \textit{weighted voting}, bobot diberikan secara proporsional berdasarkan performa validasi masing-masing model, sehingga model yang lebih baik mendapat pengaruh lebih besar dalam prediksi akhir. \par
+
+\subsection{Evaluasi dan Analisis Trade-off} \label{III.Langkah7}
+Setiap konfigurasi model dievaluasi menggunakan metrik akurasi (accuracy, precision, recall, F1-score, confusion matrix) dan metrik efisiensi komputasi (inference time, memory usage, FLOPs). Analisis pertukaran dilakukan dengan memvisualisasikan hubungan antara metrik akurasi dan efisiensi untuk memberikan panduan praktis dalam pemilihan arsitektur model sesuai kebutuhan penerapan. \par
+
+
+\section{Alat dan Bahan Tugas Akhir} \label{III.AlatBahan}
+
+\subsection{Alat} \label{III.Alat}
+Alat yang digunakan dalam penelitian ini adalah sebagai berikut: \par
+\begin{enumerate}[noitemsep]
+    \item Workstation dengan spesifikasi GPU NVIDIA RTX 3090 (24GB VRAM), CPU Intel Xeon atau AMD Ryzen (minimal 16 \textit{cores}), RAM minimal 32 GB DDR4, dan penyimpanan 500 GB SSD.
+    \item Sistem operasi Linux Ubuntu 20.04 LTS atau lebih baru.
+    \item CUDA 11.8 atau lebih baru dengan cuDNN 8.6 atau lebih baru.
+    \item Python 3.9+ sebagai bahasa pemrograman utama.
+    \item PyTorch 2.0+ sebagai \textit{framework deep learning} dengan dukungan akselerasi GPU.
+    \item Pustaka \textit{timm} (PyTorch Image Models) untuk implementasi ViT-B/16 dan \textit{EfficientNet-B0}.
+    \item Pustaka \textit{scikit-learn} dan \textit{torchmetrics} untuk perhitungan metrik evaluasi.
+    \item Pustaka \textit{thop} dan \textit{torch.profiler} untuk profiling FLOPs dan penggunaan memori.
+    \item \textit{Tensorboard} untuk monitoring \textit{training} secara \textit{real-time}.
+    \item \textit{Matplotlib} dan \textit{seaborn} untuk visualisasi hasil dan analisis.
+\end{enumerate}
+
+\subsection{Bahan} \label{III.Bahan}
+Bahan yang digunakan dalam penelitian ini adalah sebagai berikut: \par
+\begin{enumerate}[noitemsep]
+    \item \textit{Dataset} \textit{CrisisMMD} yang diperoleh dari repositori resmi \cite{alam2018crisismmd}, mengandung lebih dari 18.000 citra dari tujuh kejadian bencana alam tahun 2017 beserta anotasi manual untuk tugas klasifikasi \textit{Informative} vs \textit{Not Informative} dan \textit{Humanitarian Categories}.
+    \item Bobot \textit{pretrained} \textit{EfficientNet-B0} dari \textit{ImageNet-1k}, tersedia melalui pustaka \textit{torchvision}.
+    \item Bobot \textit{pretrained} ViT-B/16 dari \textit{ImageNet-21k} yang di-\textit{fine-tune} pada \textit{ImageNet-1k}, tersedia melalui pustaka \textit{timm}.
+    \item \textit{Official data split} (70\% \textit{train}, 15\% \textit{validation}, 15\% \textit{test}) yang disediakan oleh pembuat \textit{dataset} \cite{ofli2020benchmarks} untuk memastikan perbandingan yang adil dengan penelitian sebelumnya.
+\end{enumerate}
+
+
+\section{Metode Pengembangan} \label{III.Metode}
+Metode pengembangan dalam penelitian ini mengikuti pendekatan eksperimental komparatif yang terdiri dari tahapan \textit{fine-tuning} model tunggal, implementasi strategi \textit{ensemble}, dan evaluasi komprehensif. \par
+
+Setiap model di-\textit{fine-tune} menggunakan \textit{optimizer} AdamW dengan \textit{weight decay} 0.01 \cite{loshchilov2019adamw}. Strategi \textit{learning rate} disesuaikan untuk setiap arsitektur: \textit{EfficientNet-B0} menggunakan \textit{initial learning rate} 1e-4, sedangkan ViT-B/16 menggunakan \textit{initial learning rate} 5e-5 (lebih kecil karena model lebih besar). Keduanya menggunakan \textit{cosine annealing schedule} dengan minimum 1e-6 \cite{loshchilov2017sgdr}. \textit{Batch size} disesuaikan dengan ukuran input: 32 untuk \textit{EfficientNet-B0} (input 224$\times$224) dan 16 untuk ViT-B/16 (input 384$\times$384). \textit{Training} dilakukan maksimum 50 \textit{epochs} dengan \textit{early stopping} (\textit{patience} = 5 \textit{epochs}) berdasarkan \textit{validation loss}. \textit{Loss function} yang digunakan adalah \textit{cross-entropy loss}, dengan \textit{weighted cross-entropy} untuk tugas \textit{Humanitarian Categories} yang memiliki ketidakseimbangan kelas. \par
+
+Untuk memastikan \textit{reproducibility}, setiap eksperimen dijalankan dengan \textit{random seed} yang tetap (seed=42). Setiap konfigurasi model dijalankan sebanyak 3 kali dengan \textit{seed} yang berbeda (42, 123, 456), dan hasil yang dilaporkan adalah rata-rata dari ketiga \textit{runs} beserta \textit{standard deviation}. Kode sumber dan konfigurasi eksperimen disimpan menggunakan sistem kontrol versi (\textit{Git}). \par
+
+
+\section{Ilustrasi Perhitungan Metode} \label{III.Ilustrasi}
+Berikut adalah ilustrasi perhitungan untuk strategi \textit{ensemble} yang digunakan dalam penelitian ini, mengacu pada rumus yang telah dijelaskan di Bab \ref{Bab II}. \par
+
+\textbf{Simple Averaging:} Untuk setiap citra, kedua model menghasilkan vektor probabilitas. Misalkan \textit{EfficientNet-B0} menghasilkan probabilitas kelas \textit{Informative} sebesar 0.70 dan kelas \textit{Not Informative} sebesar 0.30, sementara ViT-B/16 menghasilkan 0.80 dan 0.20. Prediksi \textit{ensemble} menggunakan \textit{simple averaging} adalah: \par
+
+\begin{equationcaptioned}[eq:ensemble_simple]{
+    p_{ensemble}(c) = \frac{p_{EfficientNet}(c) + p_{ViT}(c)}{2}
+}{
+    Simple Averaging Ensemble
+}
+\end{equationcaptioned}
+
+Sehingga diperoleh probabilitas kelas \textit{Informative} = $(0.70 + 0.80) / 2 = 0.75$ dan kelas \textit{Not Informative} = $(0.30 + 0.20) / 2 = 0.25$. Kelas dengan probabilitas tertinggi (0.75) dipilih sebagai prediksi akhir: \textit{Informative}. \par
+
+\textbf{Weighted Voting:} Misalkan akurasi validasi \textit{EfficientNet-B0} adalah 84\% dan ViT-B/16 adalah 86\%. Bobot masing-masing model dihitung sebagai: \par
+
+\begin{equationcaptioned}[eq:ensemble_weight]{
+    w_{model} = \frac{acc_{validation}^{model}}{acc_{validation}^{EfficientNet} + acc_{validation}^{ViT}}
+}{
+    Perhitungan Bobot Weighted Voting
+}
+\end{equationcaptioned}
+
+Sehingga $w_{EfficientNet} = 84 / (84 + 86) = 0.494$ dan $w_{ViT} = 86 / (84 + 86) = 0.506$. Prediksi \textit{ensemble} adalah: \par
+
+\begin{equationcaptioned}[eq:ensemble_weighted]{
+    p_{ensemble}(c) = w_{EfficientNet} \cdot p_{EfficientNet}(c) + w_{ViT} \cdot p_{ViT}(c)
+}{
+    Weighted Voting Ensemble
+}
+\end{equationcaptioned}
+
+Probabilitas kelas \textit{Informative} = $0.494 \times 0.70 + 0.506 \times 0.80 = 0.346 + 0.405 = 0.751$. \par
+
+
+\section{Rancangan Pengujian} \label{III.Rancang_Uji}
+Rancangan pengujian dirancang untuk mengevaluasi keempat konfigurasi model secara komprehensif, yaitu \textit{EfficientNet-B0}, ViT-B/16, \textit{Simple Averaging Ensemble}, dan \textit{Weighted Voting Ensemble}. \par
+
+Pengujian metrik akurasi dilakukan menggunakan \textit{test set} yang tidak pernah digunakan selama proses \textit{training} maupun penentuan bobot \textit{ensemble}. Metrik yang dievaluasi meliputi \textit{overall accuracy}, \textit{precision}, \textit{recall}, dan \textit{F1-score} dengan \textit{macro-averaging} dan \textit{weighted-averaging}, serta \textit{confusion matrix} untuk mengidentifikasi pola kesalahan per kelas. \par
+
+Pengujian efisiensi komputasi dilakukan dengan mengukur \textit{inference time} (rata-rata per citra dalam ms) dari 100 citra \textit{test set} yang dijalankan 10 kali pada GPU NVIDIA RTX 3090 dengan CUDA 11.8. \textit{Memory usage} diukur menggunakan \texttt{torch.cuda.max\_memory\_allocated()} setelah memproses satu \textit{batch}, sementara FLOPs dihitung menggunakan pustaka \textit{thop} atau \textit{fvcore}. \par
+
+Hipotesis yang diharapkan dari penelitian ini adalah: (1) \textit{ensemble} heterogen akan memberikan akurasi lebih tinggi dibandingkan model tunggal manapun; (2) \textit{EfficientNet-B0} akan memiliki \textit{inference time} dan \textit{memory usage} yang lebih rendah dibandingkan ViT-B/16 karena perbedaan jumlah parameter yang signifikan (5.3 juta vs. 86 juta); (3) terdapat titik optimal dimana peningkatan akurasi dari \textit{ensemble} tidak lagi sebanding dengan biaya komputasi tambahan yang diperlukan, sehingga pemilihan model harus disesuaikan dengan prioritas dan kendala spesifik pada skenario penerapan. \par

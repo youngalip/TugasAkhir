@@ -1,0 +1,283 @@
+\newpage
+\chapter{TINJAUAN PUSTAKA} \label{Bab II}
+
+\section{Tinjauan Pustaka} \label{II.Tinjauan}
+Penelitian tentang klasifikasi citra media sosial untuk respons bencana telah berkembang pesat dalam beberapa tahun terakhir, khususnya sejak tersedianya \textit{dataset} standar seperti \textit{CrisisMMD} yang memungkinkan perbandingan yang adil antar berbagai metode. \par
+
+\begin{enumerate}[noitemsep]
+    \item Ofli et al. mengeksplorasi pendekatan multimodal yang menggabungkan informasi visual dan tekstual untuk meningkatkan akurasi klasifikasi pada \textit{dataset} \textit{CrisisMMD} \cite{ofli2020analysis}. Penelitian ini mengevaluasi tiga konfigurasi pelatihan: unimodal teks, unimodal citra, dan multimodal (teks + citra). Untuk Task 1 (\textit{Informativeness Classification}), pendekatan unimodal berbasis citra mencapai akurasi 83.3\%, sedangkan kombinasi teks dan gambar meningkatkan akurasi menjadi 84.4\%. Untuk Task 2 (\textit{Humanitarian Categories}), unimodal citra mencapai akurasi 76.8\%, sementara pendekatan multimodal menghasilkan akurasi 78.4\%. Meskipun pendekatan multimodal memberikan peningkatan performa, kompleksitas implementasinya lebih tinggi dan angka-angka unimodal berbasis citra tersebut menjadi \textit{baseline} yang relevan bagi penelitian yang berfokus pada modalitas citra saja.
+
+    \item Mohanty et al. membandingkan beberapa arsitektur CNN (\textit{Inception V3}, VGG, dan ResNet) untuk klasifikasi citra badai secara biner (\textit{hurricane} vs. \textit{non-hurricane}) \cite{mohanty2021multimodal}. Penelitian ini menunjukkan bahwa \textit{Tuned Inception V3} hasil \textit{fine-tuning} berbasis \textit{transfer learning} mencapai \textit{F1-score} 0.95 dan unggul sekitar 6-7\% dibandingkan arsitektur lainnya. Temuan ini mengonfirmasi pentingnya \textit{fine-tuning} dan \textit{transfer learning} dalam meningkatkan performa model CNN pada domain klasifikasi citra bencana, meskipun penelitian tersebut tidak mengeksplorasi pendekatan \textit{ensemble} maupun analisis efisiensi komputasi.
+
+    \item Firmansyah et al. melakukan evaluasi sistematis terhadap lima arsitektur CNN (\textit{VGG16}, \textit{DenseNet201}, \textit{MobileNetV2}, \textit{InceptionV3}, dan \textit{ResNet50}) pada \textit{dataset} \textit{CrisisMMD} \cite{firmansyah2022ensemble}. Penelitian ini menemukan bahwa \textit{ensemble} sederhana menggunakan \textit{simple averaging} dari dua model terbaik (DenseNet201 + VGG16, atau DenseNet201 + MobileNetV2) memberikan peningkatan akurasi sekitar 1\% dibandingkan model tunggal terbaik, dengan akurasi mencapai 84.6\%. Namun, penelitian tersebut hanya menggunakan \textit{homogeneous ensemble} dari CNN dan tidak menganalisis pertukaran antara peningkatan akurasi dengan biaya komputasi seperti waktu inferensi dan penggunaan memori.
+
+    \item Lukauskas et al. mengevaluasi performa model NLP dan CNN untuk deteksi bencana menggunakan data media sosial, menunjukkan bahwa model \textit{deep learning} dapat mencapai akurasi lebih dari 80\% dalam mengidentifikasi citra terkait bencana \cite{lukauskas2024performance}. Penelitian ini mengonfirmasi bahwa pendekatan berbasis \textit{deep learning} sangat menjanjikan untuk klasifikasi informasi krisis, meskipun fokus utamanya adalah pada deteksi bencana secara umum, bukan pada kategorisasi informasi kemanusiaan.
+
+    \item Long et al. memperkenalkan \textit{CrisisViT}, sebuah arsitektur \textit{Vision Transformer} yang dirancang khusus untuk klasifikasi citra krisis \cite{long2023crisisvit}. Penelitian ini menunjukkan bahwa arsitektur berbasis \textit{Transformer} mulai diterapkan pada domain respons bencana dan dapat mencapai performa yang kompetitif. Namun, penelitian tersebut tidak melakukan komparasi langsung dengan arsitektur CNN modern, dan tidak menganalisis pertukaran antara akurasi dengan efisiensi komputasi.
+\end{enumerate}
+
+Berdasarkan tinjauan terhadap penelitian-penelitian terdahulu, terdapat beberapa celah yang belum terisi. Pertama, eksplorasi \textit{Vision Transformer} untuk klasifikasi informasi krisis masih sangat terbatas, padahal karakteristik citra media sosial yang beragam memerlukan model yang mampu menangkap konteks global dengan baik. Kedua, studi komparatif antara CNN modern seperti \textit{EfficientNet} dengan \textit{Vision Transformer} pada domain respons bencana masih jarang dilakukan. Ketiga, analisis pertukaran antara akurasi dan efisiensi komputasi belum dieksplorasi secara mendalam, padahal ini kritis untuk aplikasi waktu nyata. Penelitian ini mengisi ketiga celah tersebut dengan melakukan analisis komparatif sistematis antara \textit{EfficientNet-B0}, ViT-B/16, dan \textit{ensemble} heterogen keduanya, serta memberikan analisis komprehensif terhadap pertukaran akurasi dan efisiensi komputasi. \par
+
+Tabel ringkasan tinjauan pustaka ditulis setelah penjelasan masing-masing jurnal. \par
+
+\begin{longtable}{|b{0.04\textwidth}|p{0.22\textwidth}|p{0.18\textwidth}|p{0.18\textwidth}|p{0.22\textwidth}|}
+    \caption{Ringkasan Penelitian Terdahulu}
+    \label{table:2.literasi}\\
+    \hline
+    \textbf{No.} & \textbf{Judul} & \textbf{Masalah} & \textbf{Metode} & \textbf{Hasil} \\
+    \hline
+    \endfirsthead
+    \hline
+    \textbf{No.} & \textbf{Judul} & \textbf{Masalah} & \textbf{Metode} & \textbf{Hasil} \\
+    \hline
+    \endhead
+    1. &
+    Analysis of social media data using multimodal deep learning for disaster response (Ofli et al., 2020) \cite{ofli2020analysis} &
+    Kebutuhan klasifikasi otomatis citra bencana dari media sosial dengan memanfaatkan modalitas teks dan citra secara bersamaan &
+    CNN + Text multimodal (unimodal teks, unimodal citra, multimodal) pada \textit{CrisisMMD} &
+    T1: 84.4\% (multimodal), 83.3\% (image-only); T2: 78.4\% (multimodal), 76.8\% (image-only). Tidak ada analisis \textit{trade-off} komputasi \\
+    \hline
+    2. &
+    A multi-modal approach towards mining social media data during natural disasters (Mohanty et al., 2021) \cite{mohanty2021multimodal} &
+    Klasifikasi citra badai biner (\textit{hurricane} vs. \textit{non-hurricane}) dari media sosial tanpa eksplorasi \textit{ensemble} &
+    Perbandingan CNN (\textit{Inception V3}, VGG, ResNet) dengan \textit{transfer learning fine-tuning} pada dataset Hurricane Irma &
+    \textit{Tuned Inception V3} mencapai F1-score 0.95, unggul 6-7\% dari arsitektur lain. Tidak ada analisis efisiensi komputasi \\
+    \hline
+    3. &
+    Ensemble learning for the classification of social media data in disaster response (Firmansyah et al., 2022) \cite{firmansyah2022ensemble} &
+    Peningkatan akurasi klasifikasi citra bencana pada \textit{CrisisMMD} menggunakan \textit{homogeneous ensemble} CNN &
+    \textit{Ensemble} lima CNN (VGG16, DenseNet201, MobileNetV2, InceptionV3, ResNet50) dengan \textit{simple averaging} &
+    Akurasi 84.6\% (DenseNet201 + VGG16). Tidak ada ViT dan tidak ada analisis biaya komputasi \\
+    \hline
+    4. &
+    Performance evaluation of NLP and CNN models for disaster detection using social media data (Lukauskas et al., 2024) \cite{lukauskas2024performance} &
+    Deteksi bencana dari data media sosial, belum fokus pada kategorisasi informasi kemanusiaan &
+    NLP + CNN pada data media sosial bencana &
+    Akurasi $>$80\% untuk deteksi bencana. Fokus deteksi umum, bukan klasifikasi \textit{humanitarian} \\
+    \hline
+    5. &
+    CrisisViT: A robust vision transformer for crisis image classification (Long et al., 2024) \cite{long2023crisisvit} &
+    Penerapan arsitektur \textit{Transformer} pada klasifikasi citra krisis tanpa komparasi langsung dengan CNN modern &
+    \textit{CrisisViT} berbasis \textit{Vision Transformer} pada \textit{dataset} krisis &
+    Performa kompetitif pada klasifikasi krisis. Tidak ada komparasi CNN dan tidak ada analisis \textit{trade-off} \\
+    \hline
+    6. &
+    \textbf{Penelitian ini} &
+    \textbf{Belum adanya komparasi sistematis CNN modern vs. ViT beserta analisis trade-off akurasi dan efisiensi komputasi pada domain respons bencana} &
+    \textbf{EfficientNet-B0 + ViT-B/16 + Ensemble Heterogen (\textit{simple averaging} \& \textit{weighted voting}) pada \textit{CrisisMMD}} &
+    \textbf{--} \\
+    \hline
+\end{longtable}
+
+
+\section{Dasar Teori} \label{II.Teori}
+
+\subsection{Respons Bencana dan Informasi Krisis} \label{II.Teori.Bencana}
+
+\subsubsection{Siklus Manajemen Bencana}
+Manajemen bencana umumnya terdiri dari empat fase utama: mitigasi, kesiapsiagaan (\textit{preparedness}), respons, dan pemulihan (\textit{recovery}). Fase respons adalah periode kritis dimana tindakan segera diperlukan untuk menyelamatkan nyawa dan mengurangi dampak bencana. Dalam fase ini, informasi yang akurat dan tepat waktu tentang lokasi korban, tingkat kerusakan, dan kebutuhan bantuan menjadi sangat penting untuk pengambilan keputusan yang efektif oleh tim respons darurat. \par
+
+\subsubsection{Peran Media Sosial dalam Respons Bencana}
+Media sosial telah menjadi sumber informasi penting dalam respons bencana karena kemampuannya menyediakan data hampir \textit{real-time} dari masyarakat terdampak. Platform seperti \textit{Twitter} dan \textit{Facebook} memungkinkan masyarakat untuk membagikan foto, video, dan informasi tentang situasi di lapangan dalam hitungan menit setelah kejadian. Informasi ini dapat memberikan \textit{situational awareness} kepada tim respons, membantu identifikasi area yang membutuhkan bantuan segera, dan memfasilitasi koordinasi upaya penyelamatan. Namun, volume data yang sangat besar dan adanya informasi yang tidak relevan membuat kurasi manual menjadi tidak praktis, sehingga diperlukan sistem klasifikasi otomatis. \par
+
+\subsubsection{Klasifikasi Informasi Krisis}
+Klasifikasi informasi krisis bertujuan untuk memisahkan informasi yang berguna untuk respons bencana dari informasi yang tidak relevan. Tugas klasifikasi utama meliputi: (1) identifikasi apakah suatu citra bersifat informatif atau tidak untuk respons bencana, dan (2) kategorisasi jenis informasi kemanusiaan yang terkandung, seperti kerusakan infrastruktur, individu terdampak, operasi penyelamatan, atau kebutuhan donasi. Klasifikasi otomatis yang akurat dapat secara signifikan mempercepat proses triase informasi dan membantu tim respons fokus pada informasi yang paling kritis. \par
+
+
+\subsection{Klasifikasi Citra} \label{II.Teori.Klasifikasi}
+Klasifikasi citra adalah tugas fundamental dalam \textit{computer vision} yang bertujuan untuk mengkategorikan citra ke dalam kelas-kelas yang telah ditentukan berdasarkan konten visualnya. Dalam konteks respons bencana, klasifikasi citra bertujuan untuk mengidentifikasi informasi yang relevan dari ribuan gambar yang dibagikan di media sosial selama kejadian bencana. Tugas ini termasuk membedakan citra informatif dari yang tidak informatif, serta mengklasifikasikan jenis informasi kemanusiaan yang terkandung dalam citra tersebut seperti kerusakan infrastruktur, individu terdampak, operasi penyelamatan, dan kebutuhan donasi. \par
+
+
+\subsection{Deep Learning dan Convolutional Neural Network} \label{II.Teori.CNN}
+
+\subsubsection{Arsitektur CNN}
+\textit{Convolutional Neural Network} (CNN) adalah arsitektur \textit{neural network} yang dirancang khusus untuk memproses data berbentuk grid seperti citra \cite{lecun1998gradient}. CNN terdiri dari beberapa komponen utama: \textit{convolutional layers} yang mengekstraksi fitur lokal melalui operasi konvolusi, \textit{pooling layers} yang mengurangi dimensi spasial sambil mempertahankan informasi penting, dan \textit{fully connected layers} yang melakukan klasifikasi berdasarkan fitur yang telah diekstraksi. \par
+
+Keunggulan utama CNN adalah kemampuannya untuk menangkap hierarki fitur visual secara otomatis tanpa memerlukan rekayasa fitur manual. \textit{Layer} awal biasanya mendeteksi fitur-fitur sederhana seperti tepi dan tekstur, sementara \textit{layer} yang lebih dalam menggabungkan fitur-fitur tersebut menjadi representasi yang lebih kompleks dan abstrak \cite{lecun2015deep}. Arsitektur ini telah menjadi standar \textit{de facto} untuk berbagai tugas \textit{computer vision} sejak keberhasilan \textit{AlexNet} pada kompetisi \textit{ImageNet} tahun 2012. Dalam domain klasifikasi citra untuk respons bencana, Nguyen et al. merupakan penelitian pionir yang mendemonstrasikan bahwa arsitektur CNN seperti \textit{AlexNet} dan VGG mampu mengidentifikasi informasi kritis terkait bencana dari media sosial dengan akurasi yang tinggi \cite{nguyen2017robust}. \par
+
+\subsubsection{EfficientNet}
+\textit{EfficientNet} adalah keluarga arsitektur CNN yang diperkenalkan oleh Tan dan Le dengan fokus pada efisiensi melalui \textit{compound scaling} \cite{tan2019efficientnet}. Berbeda dengan pendekatan tradisional yang hanya meningkatkan kedalaman atau lebar jaringan, \textit{EfficientNet} menggunakan metode \textit{compound coefficient} untuk menyeimbangkan peningkatan kedalaman, lebar, dan resolusi input secara bersamaan. Pendekatan ini menghasilkan model yang lebih akurat dengan parameter yang lebih sedikit dibandingkan arsitektur CNN lainnya. \par
+
+\textit{EfficientNet} menggunakan \textit{Neural Architecture Search} (NAS) untuk menemukan arsitektur dasar yang optimal (\textit{EfficientNet-B0}), kemudian melakukan \textit{scaling} secara sistematis untuk menghasilkan varian B1 hingga B7. Tan dan Le menunjukkan bahwa \textit{EfficientNet-B0} mampu mencapai akurasi sebesar 77.1\% pada \textit{benchmark ImageNet} hanya dengan 5.3 juta parameter, sementara \textit{ResNet-50} yang membutuhkan sekitar 26 juta parameter hanya menghasilkan akurasi 76.0\%, mengindikasikan keunggulan efisiensi \textit{EfficientNet} secara signifikan \cite{tan2019efficientnet}. Dalam konteks aplikasi dunia nyata, efisiensi ini sangat penting terutama untuk penerapan pada perangkat dengan keterbatasan sumber daya seperti dalam kondisi lapangan saat respons bencana. Penelitian terbaru oleh Alam et al. menunjukkan bahwa \textit{EfficientNet-B1} mengungguli sepuluh arsitektur CNN lainnya secara rata-rata pada beberapa tugas klasifikasi citra bencana dari media sosial, sekaligus menjadi pilihan optimal untuk aplikasi waktu nyata berkat efisiensi komputasinya \cite{alam2021robust}. \par
+
+
+\subsection{Vision Transformer} \label{II.Teori.ViT}
+\textit{Vision Transformer} (ViT) adalah adaptasi dari arsitektur \textit{Transformer} yang awalnya dirancang untuk pemrosesan bahasa natural ke domain \textit{computer vision} \cite{dosovitskiy2021image}. Berbeda dengan CNN yang mengandalkan operasi konvolusi lokal, ViT membagi citra menjadi \textit{patch-patch} berukuran tetap (misalnya 16$\times$16 piksel), kemudian mem-\textit{flatten} setiap \textit{patch} menjadi vektor dan memprosesnya menggunakan mekanisme \textit{self-attention}. \par
+
+Mekanisme \textit{self-attention} memungkinkan setiap \textit{patch} untuk berinteraksi dengan semua \textit{patch} lainnya sejak \textit{layer} pertama, memberikan kemampuan untuk menangkap dependensi jarak jauh tanpa dibatasi oleh \textit{receptive field} seperti pada CNN \cite{dosovitskiy2021image}. ViT menggunakan \textit{positional encoding} untuk mempertahankan informasi posisi spasial dari setiap \textit{patch}. Meskipun membutuhkan data \textit{pre-training} yang sangat besar untuk mencapai performa optimal, ViT telah menunjukkan hasil yang kompetitif bahkan superior dibandingkan CNN pada berbagai tolok ukur \textit{computer vision} ketika di-\textit{pretrain} pada \textit{dataset ImageNet-21k} \cite{han2022survey}. \par
+
+Arsitektur ViT terdiri dari beberapa komponen utama: \textit{patch embedding layer} yang mengubah \textit{patch} citra menjadi vektor, \textit{positional encoding} untuk informasi posisi, beberapa \textit{layer Transformer encoder}, dan \textit{classification head} untuk prediksi akhir. ViT-B/16, yang digunakan dalam penelitian ini, memiliki 12 \textit{layer Transformer} dengan dimensi tersembunyi 768 dan 12 \textit{attention heads}, menghasilkan total sekitar 86 juta parameter \cite{dosovitskiy2021image}. \par
+
+
+\subsection{Transfer Learning} \label{II.Teori.Transfer}
+\textit{Transfer learning} adalah teknik dalam \textit{machine learning} yang memanfaatkan pengetahuan yang telah dipelajari dari satu tugas untuk meningkatkan performa pada tugas yang berbeda namun terkait \cite{pan2010survey}. Terdapat dua strategi utama dalam \textit{transfer learning}: \textit{feature extraction} dimana \textit{layer-layer pretrained} dibekukan dan hanya \textit{layer classifier} yang di-\textit{train} ulang, dan \textit{fine-tuning} dimana sebagian atau seluruh parameter model disesuaikan dengan \textit{learning rate} yang kecil pada \textit{dataset} target. \par
+
+Dalam konteks klasifikasi citra bencana, \textit{transfer learning} sangat penting karena \textit{dataset} anotasi untuk domain spesifik seringkali terbatas. Model yang telah mempelajari representasi visual umum dari jutaan citra pada \textit{ImageNet} dapat dengan cepat beradaptasi untuk mengenali pola-pola spesifik dalam citra bencana dengan hanya beberapa ribu contoh \textit{training}, secara signifikan mengurangi kebutuhan data dan waktu komputasi. \par
+
+
+\subsection{Ensemble Learning} \label{II.Teori.Ensemble}
+\textit{Ensemble learning} adalah paradigma \textit{machine learning} yang menggabungkan prediksi dari beberapa model untuk meningkatkan performa dibandingkan model tunggal \cite{rokach2010ensemble}. Ide dasar \textit{ensemble} adalah bahwa kombinasi dari beberapa model yang saling melengkapi dapat mengurangi bias dan varians, menghasilkan prediksi yang lebih \textit{robust} dan akurat. \par
+
+Dalam konteks \textit{deep learning}, terdapat dua strategi kombinasi prediksi yang umum digunakan. \textit{Simple averaging} memberikan bobot yang sama untuk setiap model, dimana prediksi \textit{ensemble} dihitung sebagai rata-rata probabilitas dari seluruh model. \textit{Weighted voting} memberikan bobot berbeda kepada masing-masing model berdasarkan performa validasinya, sehingga model yang lebih baik mendapat pengaruh lebih besar dalam prediksi akhir. \textit{Heterogeneous ensemble} yang menggabungkan CNN dan \textit{Transformer} berpotensi memanfaatkan kekuatan komplementer dari kedua paradigma: CNN yang efektif dalam menangkap pola lokal dan \textit{Transformer} yang unggul dalam \textit{modeling} konteks global. \par
+
+
+\subsection{Augmentasi Data} \label{II.Teori.Augmentasi}
+Augmentasi data adalah teknik untuk meningkatkan keragaman data \textit{training} dengan membuat variasi artifisial dari citra yang ada tanpa mengubah labelnya \cite{shorten2019survey}. Teknik ini bertujuan mengurangi risiko \textit{overfitting} dan meningkatkan kemampuan generalisasi model. Teknik augmentasi yang umum digunakan meliputi \textit{horizontal flip} yang membalik citra secara horizontal, rotasi acak yang memutar citra pada sudut tertentu, dan \textit{color jitter} yang menerapkan variasi acak pada kecerahan, kontras, dan saturasi citra. Teknik-teknik ini membantu model menjadi lebih \textit{robust} terhadap variasi orientasi dan kondisi pencahayaan yang umum terjadi pada citra media sosial. \par
+
+
+\subsection{Optimizer dan Learning Rate Schedule} \label{II.Teori.Optimizer}
+
+\subsubsection{AdamW}
+AdamW adalah varian dari algoritma \textit{optimizer} Adam yang memisahkan \textit{weight decay} dari pembaruan gradien, sehingga regularisasi diterapkan secara lebih tepat \cite{loshchilov2019adamw}. Berbeda dengan Adam standar yang menggabungkan \textit{weight decay} ke dalam gradien sebelum normalisasi adaptif, AdamW menerapkan \textit{weight decay} langsung pada parameter model setelah pembaruan adaptif. AdamW terbukti lebih efektif untuk melatih model berbasis \textit{Transformer} seperti ViT karena pemisahan \textit{weight decay} ini mencegah interaksi yang tidak diinginkan antara adaptasi \textit{learning rate} dan regularisasi. \par
+
+\subsubsection{Cosine Annealing Schedule}
+\textit{Cosine annealing} adalah strategi penjadwalan \textit{learning rate} yang menurunkan \textit{learning rate} mengikuti fungsi kosinus dari nilai awal menuju nilai minimum \cite{loshchilov2017sgdr}. Penjadwalan ini memungkinkan model untuk menjelajahi ruang parameter secara luas pada awal \textit{training} dan kemudian melakukan konvergensi yang lebih halus menuju solusi optimal, menghasilkan proses \textit{training} yang lebih stabil dan performa akhir yang lebih baik. \par
+
+
+\subsection{Loss Function} \label{II.Teori.Loss}
+
+\subsubsection{Cross-Entropy Loss}
+\textit{Cross-entropy loss} adalah fungsi kerugian yang paling umum digunakan untuk tugas klasifikasi \cite{goodfellow2016deep}. Fungsi ini mengukur perbedaan antara distribusi probabilitas prediksi model dengan distribusi label sebenarnya. Untuk klasifikasi multi-kelas, \textit{cross-entropy loss} dihitung sebagai berikut: \par
+
+\begin{equationcaptioned}[eq:cross_entropy]{
+    \mathcal{L}_{CE} = -\frac{1}{N} \sum_{i=1}^{N} \sum_{c=1}^{C} y_{i,c} \log(\hat{p}_{i,c})
+}{
+    Cross-Entropy Loss
+}
+\end{equationcaptioned}
+
+dimana $N$ adalah jumlah sampel, $C$ adalah jumlah kelas, $y_{i,c}$ adalah label \textit{one-hot} yang bernilai 1 jika sampel ke-$i$ termasuk kelas $c$ dan 0 sebaliknya, serta $\hat{p}_{i,c}$ adalah probabilitas prediksi model untuk sampel ke-$i$ pada kelas $c$. \par
+
+\subsubsection{Weighted Cross-Entropy Loss}
+Pada \textit{dataset} dengan distribusi kelas yang tidak seimbang (\textit{class imbalance}), \textit{weighted cross-entropy loss} memberikan bobot yang lebih besar pada kelas minoritas untuk mencegah model bias terhadap kelas mayoritas: \par
+
+\begin{equationcaptioned}[eq:weighted_cross_entropy]{
+    \mathcal{L}_{WCE} = -\frac{1}{N} \sum_{i=1}^{N} \sum_{c=1}^{C} w_c \cdot y_{i,c} \log(\hat{p}_{i,c})
+}{
+    Weighted Cross-Entropy Loss
+}
+\end{equationcaptioned}
+
+dimana $w_c$ adalah bobot untuk kelas $c$, yang umumnya dihitung sebagai kebalikan dari frekuensi kemunculan kelas tersebut dalam \textit{dataset training}. \par
+
+
+\subsection{Metrik Evaluasi} \label{II.Teori.Metrik}
+
+\subsubsection{Accuracy}
+\textit{Accuracy} mengukur proporsi prediksi yang benar dari seluruh prediksi yang dibuat oleh model. \textit{Accuracy} dihitung dengan formula: \par
+
+\begin{equationcaptioned}[eq:accuracy]{
+    \text{Accuracy} = \frac{TP + TN}{TP + TN + FP + FN}
+}{
+    Accuracy
+}
+\end{equationcaptioned}
+
+dimana $TP$ (\textit{True Positive}) adalah jumlah prediksi positif yang benar, $TN$ (\textit{True Negative}) adalah jumlah prediksi negatif yang benar, $FP$ (\textit{False Positive}) adalah jumlah prediksi positif yang salah, dan $FN$ (\textit{False Negative}) adalah jumlah prediksi negatif yang salah. Meskipun intuitif, \textit{accuracy} dapat menyesatkan pada \textit{dataset} yang tidak seimbang dimana satu kelas jauh lebih dominan dari kelas lainnya. \par
+
+\subsubsection{Precision}
+\textit{Precision} mengukur proporsi prediksi positif yang benar dari seluruh prediksi positif yang dibuat oleh model. \textit{Precision} dihitung dengan formula: \par
+
+\begin{equationcaptioned}[eq:precision]{
+    \text{Precision} = \frac{TP}{TP + FP}
+}{
+    Precision
+}
+\end{equationcaptioned}
+
+\textit{Precision} penting ketika biaya dari \textit{false positive} tinggi, yaitu ketika model salah memprediksi kelas positif padahal sebenarnya negatif. \par
+
+\subsubsection{Recall}
+\textit{Recall} (atau \textit{sensitivity}) mengukur proporsi \textit{instance} positif yang benar diidentifikasi dari seluruh \textit{instance} positif sebenarnya. \textit{Recall} dihitung dengan formula: \par
+
+\begin{equationcaptioned}[eq:recall]{
+    \text{Recall} = \frac{TP}{TP + FN}
+}{
+    Recall
+}
+\end{equationcaptioned}
+
+\textit{Recall} penting ketika biaya dari \textit{false negative} tinggi, seperti dalam deteksi bencana dimana kehilangan informasi kritis dapat berakibat fatal. \par
+
+\subsubsection{F1-Score}
+\textit{F1-score} adalah \textit{harmonic mean} dari \textit{precision} dan \textit{recall} yang memberikan keseimbangan antara kedua metrik tersebut \cite{powers2011evaluation}: \par
+
+\begin{equationcaptioned}[eq:f1score]{
+    F1 = 2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}}
+}{
+    F1-Score
+}
+\end{equationcaptioned}
+
+\textit{F1-score} sangat berguna pada \textit{dataset} tidak seimbang karena mempertimbangkan baik \textit{false positive} maupun \textit{false negative}. Nilai \textit{F1-score} berkisar antara 0 hingga 1, dimana 1 menunjukkan \textit{precision} dan \textit{recall} yang sempurna. \par
+
+Dalam konteks klasifikasi multi-kelas, \textit{F1-score} dapat dihitung per-kelas kemudian di-\textit{average}. \textit{Macro-averaging} memberikan bobot sama untuk setiap kelas: \par
+
+\begin{equationcaptioned}[eq:f1macro]{
+    F1_{\text{macro}} = \frac{1}{C} \sum_{c=1}^{C} F1_c
+}{
+    F1-Score Macro-Averaging
+}
+\end{equationcaptioned}
+
+\textit{Weighted-averaging} memberikan bobot sesuai jumlah \textit{instance} per kelas: \par
+
+\begin{equationcaptioned}[eq:f1weighted]{
+    F1_{\text{weighted}} = \frac{1}{N} \sum_{c=1}^{C} n_c \cdot F1_c
+}{
+    F1-Score Weighted-Averaging
+}
+\end{equationcaptioned}
+
+dimana $n_c$ adalah jumlah \textit{instance} pada kelas $c$ dan $N = \sum_{c=1}^{C} n_c$. \par
+
+\subsubsection{Confusion Matrix}
+\textit{Confusion matrix} adalah tabel yang mendeskripsikan performa model klasifikasi dengan menampilkan \textit{true positive}, \textit{true negative}, \textit{false positive}, dan \textit{false negative} \cite{powers2011evaluation}. Untuk klasifikasi multi-kelas, \textit{confusion matrix} berukuran $C \times C$ dimana elemen pada baris $i$ dan kolom $j$ menunjukkan jumlah \textit{instance} dari kelas $i$ yang diprediksi sebagai kelas $j$. Matriks ini memberikan visualisasi yang jelas tentang jenis kesalahan yang dibuat oleh model dan membantu identifikasi kelas mana yang sulit diklasifikasikan. \par
+
+\subsubsection{Metrik Efisiensi Komputasi}
+Selain metrik akurasi, evaluasi efisiensi komputasi model sangat penting untuk aplikasi waktu nyata seperti respons bencana \cite{menghani2023efficient}. \par
+
+\textit{Inference time} adalah waktu yang dibutuhkan model untuk memproses satu citra, diukur dalam milidetik (ms). Metrik ini diukur dengan menjalankan model pada sejumlah citra (\textit{batch}) dan menghitung rata-rata waktu per citra: \par
+
+\begin{equationcaptioned}[eq:inference_time]{
+    t_{\text{avg}} = \frac{1}{B} \sum_{i=1}^{B} t_i
+}{
+    Rata-rata Inference Time
+}
+\end{equationcaptioned}
+
+dimana $B$ adalah jumlah citra dalam \textit{batch} dan $t_i$ adalah waktu inferensi untuk citra ke-$i$. \par
+
+\textit{Memory usage} adalah konsumsi memori GPU maksimum selama inferensi, diukur dalam megabyte (MB). FLOPs adalah jumlah operasi matematika \textit{floating-point} yang dibutuhkan untuk memproses satu citra, diukur dalam GigaFLOPs (GFLOPs). Metrik ini memberikan indikasi kompleksitas komputasi model yang independen dari perangkat keras spesifik: \par
+
+\begin{equationcaptioned}[eq:flops]{
+    \text{FLOPs} = \sum_{\text{layers}} \text{FLOPs}_{\text{layer}}
+}{
+    Total FLOPs
+}
+\end{equationcaptioned}
+
+Untuk \textit{convolutional layer}, FLOPs dihitung sebagai: \par
+
+\begin{equationcaptioned}[eq:flops_conv]{
+    \text{FLOPs}_{\text{conv}} = 2 \times H_{\text{out}} \times W_{\text{out}} \times C_{\text{in}} \times C_{\text{out}} \times K^2
+}{
+    FLOPs Convolutional Layer
+}
+\end{equationcaptioned}
+
+dimana $H_{\text{out}}$ dan $W_{\text{out}}$ adalah dimensi output, $C_{\text{in}}$ dan $C_{\text{out}}$ adalah jumlah channel input dan output, dan $K$ adalah ukuran kernel. \par
+
+
+\subsection{Dataset CrisisMMD} \label{II.Teori.Dataset}
+\textit{CrisisMMD} adalah \textit{dataset} multimodal yang dikurasi khusus untuk penelitian klasifikasi informasi media sosial dalam konteks respons bencana \cite{alam2018crisismmd}. \textit{Dataset} ini mengandung lebih dari 18.000 \textit{tweet} dengan gambar yang dikumpulkan dari tujuh kejadian bencana alam yang semuanya terjadi pada tahun 2017, yaitu \textit{Hurricane Harvey}, \textit{Hurricane Irma}, \textit{Hurricane Maria}, gempa bumi Mexico, kebakaran hutan California, gempa bumi Iraq-Iran, dan banjir Sri Lanka. Setiap \textit{instance} dalam \textit{dataset} telah dianotasi secara manual oleh beberapa anotator untuk memastikan kualitas label. \par
+
+\textit{Dataset} menyediakan tiga tugas klasifikasi utama: \par
+
+\textbf{Task 1 -- \textit{Informative Classification}:} Klasifikasi citra sebagai \textit{Informative} (mengandung informasi berguna untuk respons bencana) atau \textit{Not Informative} (tidak relevan atau bukan citra bencana). Ini adalah tugas klasifikasi biner dengan distribusi kelas yang relatif seimbang. \par
+
+\textbf{Task 2 -- \textit{Humanitarian Categories}:} Klasifikasi citra informatif ke dalam salah satu dari tujuh kategori: kerusakan infrastruktur dan utilitas, individu terdampak, orang terluka atau meninggal, orang hilang atau ditemukan, upaya penyelamatan atau donasi, kerusakan kendaraan, dan informasi relevan lainnya. Ini adalah tugas klasifikasi multi-kelas dengan distribusi kelas yang tidak seimbang. \par
+
+\textbf{Task 3 -- \textit{Damage Severity Assessment}:} Menilai tingkat kerusakan yang ditampilkan dalam gambar ke dalam empat kategori: tidak tahu atau tidak dapat dinilai, sedikit atau tidak ada kerusakan, kerusakan ringan, dan kerusakan parah. \par
+
+Untuk penelitian ini, fokus diberikan pada Task 1 dan Task 2 karena keduanya paling relevan untuk sistem triase informasi otomatis dalam respons bencana. \textit{Dataset} dibagi menjadi \textit{training set} (70\%), \textit{validation set} (15\%), dan \textit{test set} (15\%) menggunakan \textit{split} yang telah disediakan oleh pembuat \textit{dataset} untuk memastikan perbandingan yang adil dengan penelitian sebelumnya \cite{ofli2020benchmarks}. \par
