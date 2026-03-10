@@ -2,120 +2,575 @@
 \chapter{METODE PENELITIAN} \label{Bab III}
 
 \section{Alur Penelitian} \label{III.Alur}
-Pada penelitian ini, alur dirancang untuk memastikan setiap tahapan pemrosesan dilakukan secara sistematis dan efisien. Penelitian ini mengikuti metodologi eksperimental yang sistematis untuk membandingkan performa \textit{EfficientNet-B0}, \textit{Vision Transformer} (ViT-B/16), dan \textit{ensemble} heterogen dari kedua model dalam klasifikasi citra informasi krisis. Alur penelitian mencerminkan langkah-langkah utama dari studi literatur hingga analisis pertukaran (\textit{trade-off}), sebagaimana digambarkan dalam diagram alir pada Gambar \ref{fig:3.alur}. \par
+Penelitian ini dirancang menggunakan pendekatan kuantitatif eksperimental
+untuk melakukan analisis komparatif sistematis terhadap empat arsitektur
+\textit{deep learning} pada tugas klasifikasi citra informasi krisis dari
+media sosial. Alur penelitian mencakup seluruh tahapan dari persiapan data
+hingga evaluasi berbagai konfigurasi \textit{ensemble} dan \textit{ablation
+study}, dan digambarkan secara sistematis dalam diagram alir pada
+Gambar~\ref{fig:3.alur}. \par
 
+% TODO: Buat flowchart penelitian (dibuat sendiri)
+% Alur: Mulai → Studi Literatur → Persiapan Dataset → Pra-pemrosesan →
+%        Pemilihan & Konfigurasi Model →
+%        [Proposed Pipeline] Pelatihan Two-Stage + Augmentasi →
+%        [Baseline Pipeline] Pelatihan Full Fine-Tuning Tanpa Augmentasi →
+%        Evaluasi Model Tunggal → Pembentukan Ensemble →
+%        Evaluasi Ensemble → Ablation Study → Analisis & Pembahasan → Selesai
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{figure/flowchart.jpg}
+    % \includegraphics[width=0.6\textwidth]{figure/flowchart_penelitian.png}
+    \fbox{\rule{0pt}{12cm}\rule{0.5\textwidth}{0pt}}
     \caption{Alur Penelitian}
     \label{fig:3.alur}
 \end{figure}
 
 
-\section{Penjabaran Langkah Penelitian} \label{III.JabarAlur}
-Berikut adalah penjelasan dari setiap langkah pada alur penelitian yang telah digambarkan dalam \textit{flowchart} di subbab \ref{III.Alur}. \par
+\section{Penjabaran Langkah Penelitian} \label{III.Jabar Alur}
+Berdasarkan Gambar~\ref{fig:3.alur}, penelitian ini dilaksanakan melalui
+delapan tahapan sistematis yang saling berkaitan. Tahapan dimulai dari
+studi literatur untuk membangun landasan teoritis, dilanjutkan dengan
+persiapan dan pra-pemrosesan data, pelatihan model dengan dua kondisi
+\textit{pipeline} yang berbeda, hingga evaluasi komparatif model tunggal,
+berbagai konfigurasi \textit{ensemble}, dan \textit{ablation study}. \par
 
 \subsection{Studi Literatur} \label{III.Langkah1}
-Tahap awal penelitian melakukan studi literatur mendalam tentang klasifikasi citra untuk respons bencana, arsitektur \textit{EfficientNet}, \textit{Vision Transformer}, \textit{ensemble learning}, dan metrik evaluasi. Studi literatur juga mencakup penelitian terdahulu yang menggunakan \textit{dataset} \textit{CrisisMMD} untuk memahami performa \textit{state-of-the-art} dan pendekatan yang telah dilakukan. Literatur yang dikaji mencakup paper dari konferensi dan jurnal terkemuka dalam bidang \textit{computer vision} dan respons bencana, dengan fokus pada publikasi terbaru (2021--2024) untuk memastikan relevansi dengan perkembangan teknologi terkini. \par
+Tahap awal penelitian adalah pengumpulan dan analisis referensi ilmiah
+yang relevan dengan topik penelitian. Kegiatan yang dilakukan meliputi
+penelusuran jurnal dan artikel konferensi internasional terkait klasifikasi
+citra bencana, arsitektur CNN modern, \textit{Vision Transformer}, dan
+\textit{ensemble learning} dari basis data seperti IEEE Xplore, arXiv,
+ACM Digital Library, dan Google Scholar. Hasil dari tahap ini menjadi
+landasan teoritis untuk seluruh keputusan metodologis dalam penelitian. \par
 
-\subsection{Preparasi Dataset} \label{III.Langkah2}
-\textit{Dataset} \textit{CrisisMMD} diunduh dari repositori resmi dan diorganisir sesuai dengan tugas klasifikasi yang akan dievaluasi. \textit{Dataset} dibagi menjadi \textit{training set}, \textit{validation set}, dan \textit{test set} menggunakan \textit{split} yang telah disediakan oleh \textit{dataset} untuk memastikan perbandingan yang adil dengan penelitian sebelumnya. Statistik \textit{dataset} dianalisis untuk memahami distribusi kelas dan karakteristik data, termasuk analisis ketidakseimbangan kelas dan distribusi jenis bencana. \par
+\subsection{Persiapan Dataset} \label{III.Langkah2}
+Dataset yang digunakan adalah \textit{CrisisMMD}, sebuah \textit{dataset}
+standar untuk penelitian klasifikasi informasi krisis dari media sosial
+yang telah dijelaskan secara rinci pada Subbab~\ref{II.Teori.Dataset}.
+Penelitian ini menggunakan modalitas citra saja (\textit{image-only})
+pada ketiga tugas klasifikasi yang tersedia: Task 1
+(\textit{Informative Classification}), Task 2
+(\textit{Humanitarian Categories}), dan Task 3
+(\textit{Damage Severity Assessment}). \par
 
-Analisis eksploratori data meliputi distribusi jumlah citra per kelas untuk kedua tugas klasifikasi, distribusi jenis bencana dalam \textit{dataset}, analisis kualitas citra (resolusi, aspek rasio, kondisi pencahayaan), serta identifikasi potensi \textit{outliers} atau citra berkualitas rendah. \par
+Pembagian data menggunakan \textit{split} resmi yang disediakan oleh
+pembuat \textit{dataset} dengan rasio 70\% \textit{training set}, 15\%
+\textit{validation set}, dan 15\% \textit{test set}. Penggunaan
+\textit{split} resmi ini bertujuan untuk memastikan perbandingan yang
+adil dengan penelitian sebelumnya yang menggunakan dataset yang sama. \par
 
-\subsection{Preprocessing Citra} \label{III.Langkah3}
-\textit{Preprocessing} dilakukan untuk memastikan citra dalam format yang sesuai untuk input model. Citra di-\textit{resize} ke ukuran input yang sesuai dengan arsitektur model. \textit{EfficientNet-B0} menggunakan ukuran input 224$\times$224 piksel sesuai dengan spesifikasi arsitektur, sementara ViT-B/16 menggunakan ukuran input 384$\times$384 piksel untuk memaksimalkan performa \cite{dosovitskiy2021image}. Nilai piksel dinormalisasi menggunakan \textit{mean} dan \textit{standard deviation} dari \textit{dataset ImageNet} (mean: [0.485, 0.456, 0.406], std: [0.229, 0.224, 0.225]) untuk kompatibilitas dengan bobot \textit{pretrained}. \par
+\subsection{Pra-pemrosesan Data} \label{III.Langkah3}
+Tahap pra-pemrosesan mempersiapkan citra dalam format yang sesuai untuk
+pelatihan dan evaluasi model. Proses yang diterapkan berbeda antara fase
+pelatihan dan fase evaluasi, serta berbeda antara \textit{proposed
+pipeline} dan \textit{baseline pipeline}. \par
 
-Pada \textit{training set}, augmentasi data diterapkan untuk meningkatkan generalisasi dan mengurangi \textit{overfitting}, meliputi \textit{random horizontal flip} dengan probabilitas 0.5, \textit{random rotation} $\pm$15° dengan probabilitas 0.3, \textit{color jitter} (brightness: $\pm$0.2, contrast: $\pm$0.2, saturation: $\pm$0.2) dengan probabilitas 0.3, serta \textit{random resized crop} dengan skala 0.8--1.0. Augmentasi tidak diterapkan pada \textit{validation set} dan \textit{test set} untuk memastikan evaluasi yang konsisten. \par
+Pada \textit{proposed pipeline}, augmentasi data diterapkan selama fase
+pelatihan untuk meningkatkan keragaman data dan mengurangi risiko
+\textit{overfitting}. Teknik augmentasi yang digunakan meliputi
+\textit{random resized crop} dengan skala 0.8--1.0, \textit{random
+horizontal flip} dengan probabilitas 0.5, rotasi acak hingga 15 derajat,
+\textit{color jitter} untuk variasi kecerahan dan kontras, serta
+\textit{random erasing} dengan probabilitas 0.2. Pada \textit{baseline
+pipeline}, tidak diterapkan augmentasi apapun — citra hanya melalui
+\textit{resize} dan normalisasi langsung. \par
 
-\subsection{Implementasi Model EfficientNet-B0} \label{III.Langkah4}
-\textit{EfficientNet-B0} digunakan sebagai representasi CNN modern yang efisien. Implementasi menggunakan bobot \textit{pretrained} dari \textit{ImageNet-1k} yang tersedia di pustaka \textit{torchvision} atau \textit{timm} (PyTorch Image Models). Arsitektur \textit{EfficientNet-B0} terdiri dari \textit{stem} (konvolusi 3$\times$3 dengan 32 filter), 7 blok MBConv dengan ekspansi bertahap dari 16 hingga 320 kanal, \textit{head} (konvolusi 1$\times$1, \textit{global average pooling}, dan \textit{dropout}), serta \textit{classification layer} berupa \textit{fully connected layer} dengan jumlah output sesuai tugas (2 untuk \textit{Informative Classification}, 7 untuk \textit{Humanitarian Categories}). Total parameter \textit{EfficientNet-B0} adalah sekitar 5.3 juta parameter. \par
+Pada fase evaluasi, kedua \textit{pipeline} menggunakan prosedur yang
+identik: citra diubah ukurannya menggunakan \textit{resize} diikuti
+\textit{center crop} tanpa augmentasi untuk memastikan evaluasi yang
+konsisten dan adil. \par
 
-\subsection{Implementasi Model Vision Transformer (ViT-B/16)} \label{III.Langkah5}
-ViT-B/16 digunakan sebagai representasi \textit{pure transformer} untuk \textit{computer vision}. Implementasi menggunakan bobot \textit{pretrained} dari \textit{ImageNet-21k} yang kemudian di-\textit{fine-tune} pada \textit{ImageNet-1k}, tersedia di pustaka \textit{timm}. Arsitektur ViT-B/16 terdiri dari \textit{patch embedding} (membagi citra 384$\times$384 menjadi 576 \textit{patch} berukuran 16$\times$16), \textit{positional encoding} berupa vektor posisi yang dapat dipelajari, 12 \textit{layer Transformer encoder} (dimensi tersembunyi: 768; jumlah \textit{attention heads}: 12; dimensi \textit{feedforward}: 3072; \textit{dropout rate}: 0.1), serta \textit{classification head} berupa \textit{layer normalization} dan \textit{linear layer}. Total parameter ViT-B/16 adalah sekitar 86 juta parameter. \par
+Ukuran citra masukan disesuaikan dengan kebutuhan masing-masing arsitektur:
+384$\times$384 piksel untuk ViT-B/16 dan 224$\times$224 piksel untuk
+\textit{EfficientNetV2-M}, \textit{ConvNeXt-Base}, dan \textit{Swin-Small}.
+Seluruh citra dinormalisasi menggunakan nilai \textit{mean}
+$[0.485, 0.456, 0.406]$ dan standar deviasi $[0.229, 0.224, 0.225]$
+yang merupakan statistik dari \textit{dataset ImageNet}. \par
 
-\subsection{Implementasi Ensemble Heterogen} \label{III.Langkah6}
-Dua strategi \textit{ensemble} diimplementasikan untuk menggabungkan prediksi dari \textit{EfficientNet-B0} dan ViT-B/16. Pada strategi \textit{simple averaging}, kedua model mendapat bobot yang sama dan prediksi \textit{ensemble} dihitung sebagai rata-rata probabilitas. Pada strategi \textit{weighted voting}, bobot diberikan secara proporsional berdasarkan performa validasi masing-masing model, sehingga model yang lebih baik mendapat pengaruh lebih besar dalam prediksi akhir. \par
+\subsection{Pemilihan dan Konfigurasi Model} \label{III.Langkah4}
+Penelitian ini menggunakan empat arsitektur yang dipilih untuk
+merepresentasikan spektrum dari CNN murni hingga \textit{Transformer}
+murni, sehingga memungkinkan analisis komparatif yang komprehensif
+terhadap karakteristik masing-masing paradigma. \par
 
-\subsection{Evaluasi dan Analisis Trade-off} \label{III.Langkah7}
-Setiap konfigurasi model dievaluasi menggunakan metrik akurasi (accuracy, precision, recall, F1-score, confusion matrix) dan metrik efisiensi komputasi (inference time, memory usage, FLOPs). Analisis pertukaran dilakukan dengan memvisualisasikan hubungan antara metrik akurasi dan efisiensi untuk memberikan panduan praktis dalam pemilihan arsitektur model sesuai kebutuhan penerapan. \par
+\textbf{EfficientNetV2-M} dipilih sebagai representasi CNN modern yang
+efisien. Arsitektur \textit{EfficientNet} telah terbukti secara konsisten
+mengungguli berbagai arsitektur CNN lainnya pada klasifikasi citra bencana
+dari media sosial, dan \textit{EfficientNetV2-M} merupakan generasi
+lanjutan yang menghadirkan peningkatan signifikan pada kecepatan pelatihan
+dan akurasi melalui blok \textit{Fused-MBConv} dan strategi
+\textit{progressive learning}. \par
+
+\textbf{ConvNeXt-Base} dipilih sebagai representasi CNN yang mengadopsi
+prinsip desain \textit{Transformer}, dengan tujuan mengevaluasi sejauh
+mana CNN murni dapat bersaing dengan \textit{Transformer} ketika
+menggunakan praktik desain modern. Relevansi arsitektur berbasis
+\textit{ConvNeXt} untuk domain klasifikasi citra bencana telah dikonfirmasi
+pada penelitian sebelumnya yang menunjukkan peningkatan performa
+dibandingkan arsitektur CNN generasi sebelumnya. \par
+
+\textbf{Swin-Small} dipilih sebagai representasi \textit{Transformer}
+hierarkis yang mengintegrasikan konsep lokalitas dari CNN ke dalam
+kerangka \textit{Transformer} melalui mekanisme \textit{shifted window
+attention}. Varian \textit{Small} dipilih untuk menjaga keseimbangan
+antara kapasitas model dan efisiensi komputasi. \par
+
+\textbf{ViT-B/16} dipilih sebagai representasi \textit{Transformer}
+murni tanpa komponen konvolusional, yang memproses citra secara global
+melalui mekanisme \textit{self-attention} pada seluruh \textit{patch}
+sejak lapisan pertama. Keempat model diinisialisasi dengan bobot
+\textit{pre-trained} dari \textit{ImageNet-21k} yang dimuat melalui
+pustaka \texttt{timm}. \par
+
+Ringkasan konfigurasi keempat model disajikan pada
+Tabel~\ref{table:model_config}. \par
+
+\begin{table}[h]
+    \centering
+    \caption{Konfigurasi keempat model yang digunakan dalam penelitian}
+    \label{table:model_config}
+    \begin{tabular}{|l|l|r|r|r|}
+        \hline
+        \textbf{Model} & \textbf{Paradigma} &
+        \textbf{Input Size} & \textbf{Param (M)} &
+        \textbf{Batch Size} \\
+        \hline
+        EfficientNetV2-M & CNN Murni           & 224$\times$224 & $\sim$54 & 16 \\
+        ConvNeXt-Base    & CNN Modern          & 224$\times$224 & $\sim$88 & 16 \\
+        Swin-Small       & Transformer Hybrid  & 224$\times$224 & $\sim$49 & 16 \\
+        ViT-B/16         & Transformer Murni   & 384$\times$384 & $\sim$86 & 8  \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\subsection{Pelatihan Model} \label{III.Langkah5}
+Penelitian ini menjalankan dua kondisi pelatihan yang berbeda untuk
+seluruh eksperimen: \textit{proposed pipeline} yang merupakan konfigurasi
+utama penelitian, dan \textit{baseline pipeline} yang digunakan untuk
+keperluan \textit{ablation study}. \par
+
+\subsubsection{Proposed Pipeline}
+\textit{Proposed pipeline} menggunakan strategi \textit{two-stage
+fine-tuning} yang telah dijelaskan pada Subbab~\ref{II.Teori.Transfer},
+dikombinasikan dengan augmentasi data pada fase pelatihan. \par
+
+\textbf{Stage 1 (Freeze Backbone)} berlangsung selama 5 epoch. Seluruh
+lapisan \textit{backbone} dibekukan dan hanya lapisan \textit{classifier
+head} yang dilatih. Hal ini memungkinkan \textit{head} yang diinisialisasi
+secara acak untuk konvergen terlebih dahulu tanpa merusak representasi
+\textit{pretrained}. \textit{Learning rate} yang digunakan pada stage ini
+adalah $5 \times 10^{-4}$ untuk \textit{EfficientNetV2-M},
+\textit{ConvNeXt-Base}, dan \textit{Swin-Small}, serta $1 \times 10^{-3}$
+untuk ViT-B/16. \par
+
+\textbf{Stage 2 (Unfreeze All)} berlangsung maksimal 45 epoch dengan
+\textit{early stopping} berbasis \textit{validation loss} dengan
+\textit{patience} 5 epoch. Seluruh lapisan dibuka dengan
+\textit{differential learning rate}: \textit{backbone} menggunakan
+\textit{learning rate} 10 kali lebih kecil dibandingkan \textit{head}
+untuk menjaga representasi yang telah dipelajari. \par
+
+\subsubsection{Baseline Pipeline}
+\textit{Baseline pipeline} menggunakan \textit{full fine-tuning} tanpa
+augmentasi data. Seluruh lapisan model dilatih sekaligus sejak epoch
+pertama dengan \textit{learning rate} yang seragam tanpa pemisahan tahap.
+Total epoch maksimum tetap sama (50 epoch) dengan \textit{early stopping}
+yang identik untuk memastikan perbandingan yang adil. \par
+
+\subsubsection{Konfigurasi Umum}
+\textit{Optimizer} yang digunakan pada kedua \textit{pipeline} adalah
+AdamW dengan \textit{weight decay} 0.01 dan penjadwalan
+\textit{cosine annealing}. \textit{Loss function} yang digunakan adalah
+\textit{cross-entropy loss} dengan \textit{label smoothing} 0.1.
+Ringkasan seluruh \textit{hyperparameter} disajikan pada
+Tabel~\ref{table:hyperparameter}. \par
+
+\begin{table}[h]
+    \centering
+    \caption{Konfigurasi \textit{hyperparameter} pelatihan}
+    \label{table:hyperparameter}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{|l|l|l|}
+        \hline
+        \textbf{Parameter} &
+        \textbf{Proposed Pipeline} &
+        \textbf{Baseline Pipeline} \\
+        \hline
+        Augmentasi Data              & Ya (lengkap)         & Tidak \\
+        Strategi Fine-Tuning         & Two-Stage            & Full Fine-Tuning \\
+        Stage 1 Epochs               & 5                    & -- \\
+        Stage 2 / Total Epochs (maks.) & 45                 & 50 \\
+        Early Stopping Patience      & 5 epoch              & 5 epoch \\
+        LR Stage 1 (EfficientNetV2, ConvNeXt, Swin) & $5 \times 10^{-4}$ & -- \\
+        LR Stage 1 (ViT)             & $1 \times 10^{-3}$  & -- \\
+        LR Stage 2 Head / LR Uniform & $5 \times 10^{-5}$  & $5 \times 10^{-5}$ \\
+        LR Stage 2 Backbone          & $5 \times 10^{-6}$  & -- \\
+        Optimizer                    & AdamW                & AdamW \\
+        Weight Decay                 & 0.01                 & 0.01 \\
+        LR Schedule                  & Cosine Annealing     & Cosine Annealing \\
+        Loss Function                & Cross-Entropy        & Cross-Entropy \\
+        Label Smoothing              & 0.1                  & 0.1 \\
+        Gradient Clipping            & Max norm 1.0         & Max norm 1.0 \\
+        Mixed Precision              & AMP                  & AMP \\
+        Random Seed                  & 42                   & 42 \\
+        \hline
+    \end{tabular}}
+\end{table}
+
+Pelatihan dilakukan secara terpisah untuk masing-masing kombinasi model,
+task, dan kondisi \textit{pipeline}, sehingga total terdapat 24 sesi
+pelatihan: 12 sesi untuk \textit{proposed pipeline} (4 model $\times$
+3 task) dan 12 sesi untuk \textit{baseline pipeline} (4 model $\times$
+3 task). Model terbaik pada setiap sesi ditentukan berdasarkan akurasi
+validasi tertinggi dan disimpan sebagai \textit{checkpoint} untuk
+evaluasi. \par
+
+\subsection{Evaluasi Model Tunggal} \label{III.Langkah6}
+Setiap model dievaluasi pada \textit{test set} menggunakan
+\textit{checkpoint} terbaik dari masing-masing sesi pelatihan. Metrik
+yang dihitung meliputi \textit{accuracy}, \textit{macro F1-score},
+\textit{weighted F1-score}, AUC-ROC, serta \textit{per-class F1-score}
+untuk analisis mendalam per kelas. Selain itu, analisis efisiensi
+komputasi (\textit{inference time}, \textit{memory usage}, dan FLOPs)
+dilakukan pada Task 1 sebagai representasi untuk memberikan gambaran
+biaya komputasi masing-masing arsitektur. \par
+
+\subsection{Pembentukan dan Evaluasi Ensemble} \label{III.Langkah7}
+Setelah seluruh model tunggal dievaluasi, probabilitas prediksi dari
+keempat model \textit{proposed pipeline} digabungkan melalui tiga
+strategi \textit{ensemble} yang telah dijelaskan pada
+Subbab~\ref{II.Teori.Ensemble}: \par
+
+\begin{enumerate}[noitemsep]
+    \item \textbf{Simple Averaging} — rata-rata probabilitas dari keempat
+    model dengan bobot yang sama.
+    \item \textbf{Weighted Voting} — rata-rata probabilitas dengan bobot
+    proporsional terhadap akurasi validasi masing-masing model.
+    \item \textbf{Stacking (Logistic Regression)} — \textit{meta-learner}
+    dilatih pada vektor probabilitas gabungan ($4 \times C$ fitur) dari
+    \textit{validation set}, kemudian dievaluasi pada \textit{test set}.
+\end{enumerate}
+
+Ketiga strategi dievaluasi dengan metrik yang sama dengan evaluasi model
+tunggal untuk memungkinkan perbandingan langsung. \par
+
+\subsection{Analisis Komparatif dan Ablation Study} \label{III.Langkah8}
+Tahap akhir adalah analisis menyeluruh terhadap seluruh hasil eksperimen
+yang terdiri dari dua bagian utama. \par
+
+\textbf{Analisis komparatif} mencakup perbandingan performa lintas
+arsitektur, lintas task, dan lintas konfigurasi \textit{ensemble},
+termasuk analisis \textit{per-class F1-score} dan \textit{confusion
+matrix} untuk memahami pola kegagalan model pada masing-masing kelas.
+Analisis komparatif juga mencakup perbandingan \textit{ensemble}
+heterogen (CNN + \textit{Transformer}) terhadap \textit{ensemble}
+homogen (CNN saja atau \textit{Transformer} saja), serta analisis
+pengaruh jumlah model dalam \textit{ensemble}. \par
+
+\textbf{Ablation study} membandingkan \textit{proposed pipeline}
+(two-stage fine-tuning + augmentasi) terhadap \textit{baseline pipeline}
+(full fine-tuning tanpa augmentasi) pada level model tunggal dan
+\textit{ensemble} secara bersamaan, untuk membuktikan kontribusi nyata
+dari setiap komponen metodologi yang diusulkan. \par
 
 
-\section{Alat dan Bahan Tugas Akhir} \label{III.AlatBahan}
+\section{Alat dan Bahan Tugas Akhir} \label{III.Alat dan Bahan}
 
 \subsection{Alat} \label{III.Alat}
-Alat yang digunakan dalam penelitian ini adalah sebagai berikut: \par
 \begin{enumerate}[noitemsep]
-    \item Workstation dengan spesifikasi GPU NVIDIA RTX 3090 (24GB VRAM), CPU Intel Xeon atau AMD Ryzen (minimal 16 \textit{cores}), RAM minimal 32 GB DDR4, dan penyimpanan 500 GB SSD.
-    \item Sistem operasi Linux Ubuntu 20.04 LTS atau lebih baru.
-    \item CUDA 11.8 atau lebih baru dengan cuDNN 8.6 atau lebih baru.
-    \item Python 3.9+ sebagai bahasa pemrograman utama.
-    \item PyTorch 2.0+ sebagai \textit{framework deep learning} dengan dukungan akselerasi GPU.
-    \item Pustaka \textit{timm} (PyTorch Image Models) untuk implementasi ViT-B/16 dan \textit{EfficientNet-B0}.
-    \item Pustaka \textit{scikit-learn} dan \textit{torchmetrics} untuk perhitungan metrik evaluasi.
-    \item Pustaka \textit{thop} dan \textit{torch.profiler} untuk profiling FLOPs dan penggunaan memori.
-    \item \textit{Tensorboard} untuk monitoring \textit{training} secara \textit{real-time}.
-    \item \textit{Matplotlib} dan \textit{seaborn} untuk visualisasi hasil dan analisis.
+    \item Platform komputasi Kaggle Notebook dengan akselerasi GPU
+    NVIDIA Tesla T4 (16GB VRAM) untuk pelatihan dan evaluasi model.
+    \item \textit{Notebook} dengan spesifikasi sistem operasi Windows 11,
+    \textit{processor} Intel Core i5, RAM 16GB, untuk pengembangan kode
+    dan penulisan laporan.
+    \item Bahasa pemrograman Python 3.10.
+    \item Pustaka \texttt{PyTorch} untuk implementasi dan pelatihan model
+    \textit{deep learning}.
+    \item Pustaka \texttt{timm} (\textit{PyTorch Image Models}) untuk
+    inisialisasi model dengan bobot \textit{pre-trained}.
+    \item Pustaka \texttt{scikit-learn} untuk implementasi \textit{Logistic
+    Regression} sebagai \textit{meta-learner} pada \textit{stacking
+    ensemble}.
+    \item Pustaka \texttt{numpy}, \texttt{pandas}, \texttt{matplotlib},
+    dan \texttt{seaborn} untuk analisis data dan visualisasi hasil.
+    \item Code editor Microsoft Visual Studio Code.
 \end{enumerate}
 
 \subsection{Bahan} \label{III.Bahan}
-Bahan yang digunakan dalam penelitian ini adalah sebagai berikut: \par
 \begin{enumerate}[noitemsep]
-    \item \textit{Dataset} \textit{CrisisMMD} yang diperoleh dari repositori resmi \cite{alam2018crisismmd}, mengandung lebih dari 18.000 citra dari tujuh kejadian bencana alam tahun 2017 beserta anotasi manual untuk tugas klasifikasi \textit{Informative} vs \textit{Not Informative} dan \textit{Humanitarian Categories}.
-    \item Bobot \textit{pretrained} \textit{EfficientNet-B0} dari \textit{ImageNet-1k}, tersedia melalui pustaka \textit{torchvision}.
-    \item Bobot \textit{pretrained} ViT-B/16 dari \textit{ImageNet-21k} yang di-\textit{fine-tune} pada \textit{ImageNet-1k}, tersedia melalui pustaka \textit{timm}.
-    \item \textit{Official data split} (70\% \textit{train}, 15\% \textit{validation}, 15\% \textit{test}) yang disediakan oleh pembuat \textit{dataset} \cite{ofli2020benchmarks} untuk memastikan perbandingan yang adil dengan penelitian sebelumnya.
+    \item \textit{Dataset CrisisMMD} yang diperoleh dari repositori resmi
+    pembuat \textit{dataset} dan digunakan sesuai lisensi yang berlaku.
+    \item Bobot \textit{pre-trained} model \textit{EfficientNetV2-M},
+    \textit{ConvNeXt-Base}, \textit{Swin-Small}, dan ViT-B/16 dari
+    \textit{ImageNet-21k} yang dimuat melalui pustaka \texttt{timm}.
+    \item Jurnal dan artikel ilmiah referensi yang tercantum dalam daftar
+    pustaka penelitian ini.
 \end{enumerate}
 
 
 \section{Metode Pengembangan} \label{III.Metode}
-Metode pengembangan dalam penelitian ini mengikuti pendekatan eksperimental komparatif yang terdiri dari tahapan \textit{fine-tuning} model tunggal, implementasi strategi \textit{ensemble}, dan evaluasi komprehensif. \par
+Penelitian ini mengikuti pendekatan \textit{experimental machine learning
+pipeline} yang terdiri dari empat fase utama yang saling berkaitan. \par
 
-Setiap model di-\textit{fine-tune} menggunakan \textit{optimizer} AdamW dengan \textit{weight decay} 0.01 \cite{loshchilov2019adamw}. Strategi \textit{learning rate} disesuaikan untuk setiap arsitektur: \textit{EfficientNet-B0} menggunakan \textit{initial learning rate} 1e-4, sedangkan ViT-B/16 menggunakan \textit{initial learning rate} 5e-5 (lebih kecil karena model lebih besar). Keduanya menggunakan \textit{cosine annealing schedule} dengan minimum 1e-6 \cite{loshchilov2017sgdr}. \textit{Batch size} disesuaikan dengan ukuran input: 32 untuk \textit{EfficientNet-B0} (input 224$\times$224) dan 16 untuk ViT-B/16 (input 384$\times$384). \textit{Training} dilakukan maksimum 50 \textit{epochs} dengan \textit{early stopping} (\textit{patience} = 5 \textit{epochs}) berdasarkan \textit{validation loss}. \textit{Loss function} yang digunakan adalah \textit{cross-entropy loss}, dengan \textit{weighted cross-entropy} untuk tugas \textit{Humanitarian Categories} yang memiliki ketidakseimbangan kelas. \par
+\textbf{Fase 1 -- Persiapan Data:} Meliputi pengunduhan dataset,
+verifikasi integritas \textit{split} resmi, dan implementasi
+\textit{pipeline} pra-pemrosesan yang berbeda untuk \textit{proposed
+pipeline} dan \textit{baseline pipeline}. \par
 
-Untuk memastikan \textit{reproducibility}, setiap eksperimen dijalankan dengan \textit{random seed} yang tetap (seed=42). Setiap konfigurasi model dijalankan sebanyak 3 kali dengan \textit{seed} yang berbeda (42, 123, 456), dan hasil yang dilaporkan adalah rata-rata dari ketiga \textit{runs} beserta \textit{standard deviation}. Kode sumber dan konfigurasi eksperimen disimpan menggunakan sistem kontrol versi (\textit{Git}). \par
+\textbf{Fase 2 -- Pelatihan dan Seleksi Model:} Implementasi 24 sesi
+pelatihan yang terdiri dari 12 sesi \textit{proposed pipeline} dan 12
+sesi \textit{baseline pipeline} pada keempat arsitektur untuk ketiga
+task. Seleksi model terbaik berdasarkan akurasi validasi dengan
+\textit{checkpoint} disimpan untuk evaluasi. \par
+
+\textbf{Fase 3 -- Evaluasi dan Ensemble:} Evaluasi komprehensif model
+tunggal pada \textit{test set}, diikuti pembentukan dan evaluasi tiga
+konfigurasi \textit{ensemble} dari hasil \textit{proposed pipeline}.
+Probabilitas prediksi dari seluruh model disimpan untuk digunakan pada
+\textit{stacking} dan analisis \textit{ablation study}. \par
+
+\textbf{Fase 4 -- Analisis:} Analisis komparatif lintas model, lintas
+task, dan lintas konfigurasi \textit{ensemble}, disertai \textit{ablation
+study} perbandingan \textit{proposed} vs \textit{baseline pipeline},
+analisis \textit{per-class} dan \textit{confusion matrix}, serta analisis
+efisiensi komputasi. \par
 
 
 \section{Ilustrasi Perhitungan Metode} \label{III.Ilustrasi}
-Berikut adalah ilustrasi perhitungan untuk strategi \textit{ensemble} yang digunakan dalam penelitian ini, mengacu pada rumus yang telah dijelaskan di Bab \ref{Bab II}. \par
+Bagian ini memberikan ilustrasi perhitungan manual untuk tiga strategi
+\textit{ensemble} yang digunakan dalam penelitian. Seluruh rumus yang
+digunakan merujuk pada persamaan yang telah dijelaskan pada
+Bab~\ref{Bab II}. \par
 
-\textbf{Simple Averaging:} Untuk setiap citra, kedua model menghasilkan vektor probabilitas. Misalkan \textit{EfficientNet-B0} menghasilkan probabilitas kelas \textit{Informative} sebesar 0.70 dan kelas \textit{Not Informative} sebesar 0.30, sementara ViT-B/16 menghasilkan 0.80 dan 0.20. Prediksi \textit{ensemble} menggunakan \textit{simple averaging} adalah: \par
+Misalkan terdapat empat model yang telah dilatih pada Task 1 (klasifikasi
+biner: \textit{Informative} vs \textit{Not Informative}) dengan akurasi
+validasi dan probabilitas prediksi untuk satu sampel citra $x$ sebagai
+berikut: \par
 
-\begin{equationcaptioned}[eq:ensemble_simple]{
-    p_{ensemble}(c) = \frac{p_{EfficientNet}(c) + p_{ViT}(c)}{2}
-}{
-    Simple Averaging Ensemble
-}
-\end{equationcaptioned}
+\begin{table}[h]
+    \centering
+    \caption{Contoh probabilitas prediksi dan akurasi validasi keempat model}
+    \label{table:ilustrasi_input}
+    \begin{tabular}{|l|c|c|c|}
+        \hline
+        \textbf{Model} &
+        \textbf{P(Not Inf.)} &
+        \textbf{P(Informative)} &
+        \textbf{Akurasi Val. ($w_m$)} \\
+        \hline
+        EfficientNetV2-M & 0.18 & 0.82 & 0.88 \\
+        ConvNeXt-Base    & 0.25 & 0.75 & 0.87 \\
+        Swin-Small       & 0.21 & 0.79 & 0.86 \\
+        ViT-B/16         & 0.09 & 0.91 & 0.89 \\
+        \hline
+        \textbf{Total}   & --   & --   & \textbf{3.50} \\
+        \hline
+    \end{tabular}
+\end{table}
 
-Sehingga diperoleh probabilitas kelas \textit{Informative} = $(0.70 + 0.80) / 2 = 0.75$ dan kelas \textit{Not Informative} = $(0.30 + 0.20) / 2 = 0.25$. Kelas dengan probabilitas tertinggi (0.75) dipilih sebagai prediksi akhir: \textit{Informative}. \par
+\subsection{Ilustrasi Simple Averaging}
+Berdasarkan Persamaan~\ref{eq:simple_avg}, probabilitas \textit{ensemble
+simple averaging} untuk kelas \textit{Informative} dihitung sebagai
+rata-rata sederhana dari keempat model: \par
 
-\textbf{Weighted Voting:} Misalkan akurasi validasi \textit{EfficientNet-B0} adalah 84\% dan ViT-B/16 adalah 86\%. Bobot masing-masing model dihitung sebagai: \par
+\begin{equation}
+    P_{\text{avg}} = \frac{0.82 + 0.75 + 0.79 + 0.91}{4}
+    = \frac{3.27}{4} = 0.8175
+\end{equation}
 
-\begin{equationcaptioned}[eq:ensemble_weight]{
-    w_{model} = \frac{acc_{validation}^{model}}{acc_{validation}^{EfficientNet} + acc_{validation}^{ViT}}
-}{
-    Perhitungan Bobot Weighted Voting
-}
-\end{equationcaptioned}
+Karena $P_{\text{avg}} = 0.8175 > 0.5$, sampel diklasifikasikan sebagai
+\textit{Informative}. \par
 
-Sehingga $w_{EfficientNet} = 84 / (84 + 86) = 0.494$ dan $w_{ViT} = 86 / (84 + 86) = 0.506$. Prediksi \textit{ensemble} adalah: \par
+\subsection{Ilustrasi Weighted Voting}
+Berdasarkan Persamaan~\ref{eq:weighted_vote}, probabilitas \textit{ensemble
+weighted voting} untuk kelas \textit{Informative} dihitung sebagai
+rata-rata tertimbang berdasarkan akurasi validasi: \par
 
-\begin{equationcaptioned}[eq:ensemble_weighted]{
-    p_{ensemble}(c) = w_{EfficientNet} \cdot p_{EfficientNet}(c) + w_{ViT} \cdot p_{ViT}(c)
-}{
-    Weighted Voting Ensemble
-}
-\end{equationcaptioned}
+\begin{equation}
+    P_{\text{weighted}} =
+    \frac{(0.88 \times 0.82) + (0.87 \times 0.75)
+    + (0.86 \times 0.79) + (0.89 \times 0.91)}
+    {0.88 + 0.87 + 0.86 + 0.89}
+\end{equation}
 
-Probabilitas kelas \textit{Informative} = $0.494 \times 0.70 + 0.506 \times 0.80 = 0.346 + 0.405 = 0.751$. \par
+\begin{equation}
+    P_{\text{weighted}} =
+    \frac{0.7216 + 0.6525 + 0.6794 + 0.8099}{3.50}
+    = \frac{2.8634}{3.50} \approx 0.818
+\end{equation}
+
+Karena $P_{\text{weighted}} = 0.818 > 0.5$, sampel diklasifikasikan
+sebagai \textit{Informative}. Perhatikan bahwa hasil \textit{weighted
+voting} (0.818) berbeda tipis dari \textit{simple averaging} (0.8175)
+karena akurasi validasi keempat model yang relatif setara. \par
+
+\subsection{Ilustrasi Stacking Ensemble}
+Pada \textit{stacking}, vektor fitur masukan \textit{meta-learner}
+dibentuk dengan \textit{concatenate} seluruh probabilitas dari keempat
+model. Untuk Task 1 dengan $C = 2$ kelas dan $M = 4$ model, dihasilkan
+vektor berdimensi $M \times C = 8$: \par
+
+\begin{equation}
+    \mathbf{x}_{\text{stack}} =
+    [0.18,\ 0.82,\ 0.25,\ 0.75,\ 0.21,\ 0.79,\ 0.09,\ 0.91]
+\end{equation}
+
+Vektor ini distandarisasi menggunakan \textit{StandardScaler} sebelum
+dimasukkan ke \textit{Logistic Regression} yang telah dilatih pada
+\textit{validation set} untuk menghasilkan prediksi akhir. Untuk Task 2
+dengan $C = 8$ kelas, dimensi vektor menjadi $4 \times 8 = 32$, dan
+untuk Task 3 dengan $C = 3$ kelas menjadi $4 \times 3 = 12$. \par
 
 
 \section{Rancangan Pengujian} \label{III.Rancang_Uji}
-Rancangan pengujian dirancang untuk mengevaluasi keempat konfigurasi model secara komprehensif, yaitu \textit{EfficientNet-B0}, ViT-B/16, \textit{Simple Averaging Ensemble}, dan \textit{Weighted Voting Ensemble}. \par
+Pengujian dirancang untuk menjawab seluruh rumusan masalah penelitian
+secara sistematis melalui tiga skenario utama. \par
 
-Pengujian metrik akurasi dilakukan menggunakan \textit{test set} yang tidak pernah digunakan selama proses \textit{training} maupun penentuan bobot \textit{ensemble}. Metrik yang dievaluasi meliputi \textit{overall accuracy}, \textit{precision}, \textit{recall}, dan \textit{F1-score} dengan \textit{macro-averaging} dan \textit{weighted-averaging}, serta \textit{confusion matrix} untuk mengidentifikasi pola kesalahan per kelas. \par
+\subsection{Skenario Pengujian Performa Model Tunggal dan Ensemble}
+Skenario ini membandingkan performa seluruh konfigurasi model tunggal
+dan \textit{ensemble} dari \textit{proposed pipeline} pada ketiga task.
+Pengujian dilakukan pada \textit{test set} resmi \textit{CrisisMMD}
+menggunakan \textit{checkpoint} terbaik dari masing-masing model.
+Metrik yang dievaluasi adalah \textit{accuracy}, \textit{macro
+F1-score}, \textit{weighted F1-score}, AUC-ROC, dan
+\textit{per-class F1-score}. \par
 
-Pengujian efisiensi komputasi dilakukan dengan mengukur \textit{inference time} (rata-rata per citra dalam ms) dari 100 citra \textit{test set} yang dijalankan 10 kali pada GPU NVIDIA RTX 3090 dengan CUDA 11.8. \textit{Memory usage} diukur menggunakan \texttt{torch.cuda.max\_memory\_allocated()} setelah memproses satu \textit{batch}, sementara FLOPs dihitung menggunakan pustaka \textit{thop} atau \textit{fvcore}. \par
+\begin{table}[h]
+    \centering
+    \caption{Skenario pengujian performa model tunggal dan \textit{ensemble}}
+    \label{table:skenario_uji}
+    \begin{tabular}{|l|l|l|}
+        \hline
+        \textbf{Skenario} & \textbf{Konfigurasi} & \textbf{Task} \\
+        \hline
+        S1 & EfficientNetV2-M (tunggal)      & Task 1, 2, 3 \\
+        S2 & ConvNeXt-Base (tunggal)         & Task 1, 2, 3 \\
+        S3 & Swin-Small (tunggal)            & Task 1, 2, 3 \\
+        S4 & ViT-B/16 (tunggal)              & Task 1, 2, 3 \\
+        S5 & Ensemble Simple Averaging       & Task 1, 2, 3 \\
+        S6 & Ensemble Weighted Voting        & Task 1, 2, 3 \\
+        S7 & Stacking (Logistic Regression)  & Task 1, 2, 3 \\
+        \hline
+    \end{tabular}
+\end{table}
 
-Hipotesis yang diharapkan dari penelitian ini adalah: (1) \textit{ensemble} heterogen akan memberikan akurasi lebih tinggi dibandingkan model tunggal manapun; (2) \textit{EfficientNet-B0} akan memiliki \textit{inference time} dan \textit{memory usage} yang lebih rendah dibandingkan ViT-B/16 karena perbedaan jumlah parameter yang signifikan (5.3 juta vs. 86 juta); (3) terdapat titik optimal dimana peningkatan akurasi dari \textit{ensemble} tidak lagi sebanding dengan biaya komputasi tambahan yang diperlukan, sehingga pemilihan model harus disesuaikan dengan prioritas dan kendala spesifik pada skenario penerapan. \par
+\subsection{Skenario Pengujian Komposisi Ensemble}
+Skenario ini menganalisis pengaruh komposisi dan jumlah model dalam
+\textit{ensemble} menggunakan strategi \textit{simple averaging}.
+Seluruh probabilitas prediksi yang dibutuhkan sudah tersedia dari
+skenario S1--S4 sehingga tidak memerlukan sesi pelatihan tambahan. \par
+
+\begin{table}[h]
+    \centering
+    \caption{Skenario pengujian komposisi \textit{ensemble}}
+    \label{table:skenario_komposisi}
+    \begin{tabular}{|l|l|l|}
+        \hline
+        \textbf{Skenario} & \textbf{Konfigurasi} & \textbf{Task} \\
+        \hline
+        C1 & Ensemble homogen CNN
+              (EfficientNetV2-M + ConvNeXt-Base)         & Task 1, 2, 3 \\
+        C2 & Ensemble homogen Transformer
+              (Swin-Small + ViT-B/16)                    & Task 1, 2, 3 \\
+        C3 & Ensemble heterogen 2 model
+              (EfficientNetV2-M + ViT-B/16)              & Task 1, 2, 3 \\
+        C4 & Ensemble heterogen 3 model
+              (EfficientNetV2-M + Swin-Small + ViT-B/16) & Task 1, 2, 3 \\
+        C5 & Ensemble heterogen 4 model
+              (semua model -- identik dengan S5)          & Task 1, 2, 3 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\subsection{Skenario Ablation Study}
+Skenario ini membandingkan \textit{proposed pipeline} (two-stage
+fine-tuning + augmentasi) terhadap \textit{baseline pipeline}
+(full fine-tuning tanpa augmentasi) pada level model tunggal dan
+\textit{ensemble} secara bersamaan. Tujuannya adalah membuktikan
+kontribusi nyata dari komponen metodologi yang diusulkan terhadap
+performa akhir sistem. \par
+
+\begin{table}[h]
+    \centering
+    \caption{Skenario \textit{ablation study}}
+    \label{table:skenario_ablation}
+    \begin{tabular}{|l|l|l|l|}
+        \hline
+        \textbf{Skenario} & \textbf{Pipeline} &
+        \textbf{Konfigurasi} & \textbf{Task} \\
+        \hline
+        A1  & Proposed  & EfficientNetV2-M (tunggal)    & Task 1, 2, 3 \\
+        A2  & Proposed  & ConvNeXt-Base (tunggal)       & Task 1, 2, 3 \\
+        A3  & Proposed  & Swin-Small (tunggal)          & Task 1, 2, 3 \\
+        A4  & Proposed  & ViT-B/16 (tunggal)            & Task 1, 2, 3 \\
+        A5  & Proposed  & Ensemble Simple Averaging     & Task 1, 2, 3 \\
+        \hline
+        A6  & Baseline  & EfficientNetV2-M (tunggal)    & Task 1, 2, 3 \\
+        A7  & Baseline  & ConvNeXt-Base (tunggal)       & Task 1, 2, 3 \\
+        A8  & Baseline  & Swin-Small (tunggal)          & Task 1, 2, 3 \\
+        A9  & Baseline  & ViT-B/16 (tunggal)            & Task 1, 2, 3 \\
+        A10 & Baseline  & Ensemble Simple Averaging     & Task 1, 2, 3 \\
+        \hline
+    \end{tabular}
+    \begin{flushleft}
+    \footnotesize{Keterangan: A1--A5 identik dengan S1--S5, dicantumkan
+    ulang untuk memudahkan perbandingan langsung dengan \textit{baseline}.}
+    \end{flushleft}
+\end{table}
+
+\subsection{Hipotesis Hasil}
+Berdasarkan tinjauan pustaka dan karakteristik dataset, hipotesis hasil
+yang diharapkan dari penelitian ini adalah: \par
+
+\begin{enumerate}[noitemsep]
+    \item \textit{Ensemble heterogen} yang menggabungkan CNN dan
+    \textit{Transformer} akan menghasilkan performa yang lebih baik
+    dibandingkan model tunggal terbaik manapun, karena keragaman
+    paradigma arsitektur menghasilkan keragaman prediksi yang saling
+    melengkapi.
+    \item \textit{Ensemble} heterogen (CNN + \textit{Transformer}) akan
+    mengungguli \textit{ensemble} homogen (CNN saja atau
+    \textit{Transformer} saja) karena perbedaan \textit{inductive bias}
+    antar paradigma menghasilkan kesalahan prediksi yang tidak
+    berkorelasi.
+    \item Performa keempat arsitektur tidak akan berbeda secara drastis
+    pada Task 1, namun perbedaan yang lebih signifikan diperkirakan
+    muncul pada Task 2 dan Task 3 akibat ketidakseimbangan kelas yang
+    lebih ekstrem, khususnya pada kelas-kelas minoritas.
+    \item \textit{Proposed pipeline} (two-stage + augmentasi) akan
+    menghasilkan performa yang lebih tinggi dibandingkan
+    \textit{baseline pipeline} baik pada level model tunggal maupun
+    \textit{ensemble}, dengan selisih yang lebih besar pada model
+    berbasis \textit{Transformer} karena arsitektur tersebut lebih
+    rentan terhadap \textit{catastrophic forgetting}.
+    \item \textit{EfficientNetV2-M} akan menunjukkan efisiensi komputasi
+    terbaik dengan \textit{inference time} dan penggunaan memori terendah
+    di antara keempat model.
+\end{enumerate}
+
+\section{Jadwal Penelitian} \label{III.Jadwal}
+Penelitian ini dilaksanakan selama 6 bulan dengan jadwal sebagai berikut: \par
+
+\begin{table}[h]
+    \centering
+    \caption{Jadwal pelaksanaan penelitian}
+    \label{table:jadwal}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{|l|c|c|c|c|c|c|}
+        \hline
+        \textbf{Kegiatan} &
+        \textbf{Bulan 1} & \textbf{Bulan 2} & \textbf{Bulan 3} &
+        \textbf{Bulan 4} & \textbf{Bulan 5} & \textbf{Bulan 6} \\
+        \hline
+        Studi Literatur              & $\times$ & $\times$ & & & & \\
+        Persiapan Dataset            & $\times$ & $\times$ & & & & \\
+        Pra-pemrosesan Data          & & $\times$ & $\times$ & & & \\
+        Implementasi Model           & & $\times$ & $\times$ & & & \\
+        Pelatihan Model              & & & $\times$ & $\times$ & & \\
+        Evaluasi \& Ensemble         & & & & $\times$ & $\times$ & \\
+        Ablation Study               & & & & $\times$ & $\times$ & \\
+        Analisis \& Pembahasan       & & & & & $\times$ & $\times$ \\
+        Penyusunan Laporan           & & & & & $\times$ & $\times$ \\
+        \hline
+    \end{tabular}}
+\end{table}
