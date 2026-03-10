@@ -2,72 +2,213 @@
 \chapter{PENDAHULUAN} \label{Bab I}
 
 \section{Latar Belakang} \label{I.LatarBelakang}
-Bencana alam seperti gempa bumi, banjir, kebakaran hutan, dan badai tropis menimbulkan dampak yang sangat merusak dan memerlukan respons cepat dan terkoordinasi untuk menyelamatkan nyawa. Menurut \textit{United Nations Office for the Coordination of Humanitarian Affairs} (UNOCHA), 72 jam pertama setelah bencana merupakan periode kritis dimana respons harus segera dimulai untuk memaksimalkan penyelamatan korban \cite{unocha2017disaster}. Dalam periode tersebut, tim respons darurat membutuhkan informasi akurat mengenai lokasi korban, tingkat kerusakan infrastruktur, dan kebutuhan bantuan kemanusiaan untuk mengalokasikan sumber daya secara efektif \cite{kibanov2024crisis}. \par
+Bencana alam seperti gempa bumi, banjir, kebakaran hutan, dan badai
+tropis menimbulkan dampak yang sangat merusak dan memerlukan respons
+cepat dan terkoordinasi untuk menyelamatkan nyawa. Menurut
+\textit{United Nations Office for the Coordination of Humanitarian
+Affairs} (UNOCHA), 72 jam pertama setelah bencana merupakan periode
+kritis dimana respons harus segera dimulai untuk memaksimalkan
+penyelamatan korban \cite{unocha2017disaster}. Dalam periode tersebut,
+tim respons darurat membutuhkan informasi akurat mengenai lokasi
+korban, tingkat kerusakan infrastruktur, dan kebutuhan bantuan
+kemanusiaan untuk mengalokasikan sumber daya secara efektif
+\cite{braik2024automated}. \par
 
-Media sosial telah menunjukkan potensi besar sebagai sumber informasi kesadaran situasional selama kejadian bencana, dimana ribuan gambar dan video dibagikan oleh masyarakat terdampak melalui platform seperti \textit{Twitter} dan \textit{Facebook} dalam hitungan jam \cite{seneviratne2024social}. Konten visual ini dapat memberikan gambaran waktu nyata mengenai kondisi lapangan, membantu tim SAR (\textit{Search and Rescue}) mengidentifikasi area prioritas, dan memfasilitasi koordinasi bantuan kemanusiaan \cite{gopal2024leveraging}. Namun, volume data yang sangat besar dan kebutuhan akan respons yang cepat membuat kurasi manual tidak praktis untuk diterapkan, sehingga diperlukan sistem klasifikasi otomatis berbasis \textit{machine learning} untuk memfilter informasi yang relevan dari informasi yang tidak berguna \cite{awasthi2023machine}. \par
+Media sosial telah menunjukkan potensi besar sebagai sumber informasi
+kesadaran situasional selama kejadian bencana, dimana ribuan gambar dan
+video dibagikan oleh masyarakat terdampak melalui platform seperti
+\textit{Twitter} dan \textit{Facebook} dalam hitungan jam
+\cite{seneviratne2024social}. Konten visual ini dapat memberikan
+gambaran waktu nyata mengenai kondisi lapangan, membantu tim SAR
+(\textit{Search and Rescue}) mengidentifikasi area prioritas, dan
+memfasilitasi koordinasi bantuan kemanusiaan \cite{gopal2024leveraging}.
+Namun, volume data yang sangat besar dan kebutuhan akan respons yang
+cepat membuat kurasi manual tidak praktis untuk diterapkan, sehingga
+diperlukan sistem klasifikasi otomatis berbasis \textit{machine
+learning} untuk memfilter informasi yang relevan dari informasi yang
+tidak berguna \cite{awasthi2023machine}. \par
 
-Untuk memfasilitasi penelitian klasifikasi otomatis citra bencana, Alam et al. memperkenalkan \textit{CrisisMMD}, sebuah \textit{dataset} multimodal yang mengandung lebih dari 18.000 citra dari tujuh kejadian bencana yang semuanya terjadi pada tahun 2017, yaitu \textit{Hurricane Harvey}, \textit{Hurricane Irma}, \textit{Hurricane Maria}, gempa bumi Mexico, kebakaran hutan California, gempa bumi Iraq-Iran, dan banjir Sri Lanka \cite{alam2018crisismmd}. \textit{Dataset} ini telah menjadi standar evaluasi dalam domain respons bencana dan digunakan secara luas oleh komunitas peneliti untuk mengevaluasi berbagai pendekatan komputasional \cite{ofli2020benchmarks}. \par
+Untuk memfasilitasi penelitian klasifikasi otomatis citra bencana,
+Alam et al. memperkenalkan \textit{CrisisMMD}, sebuah \textit{dataset}
+multimodal yang mengandung lebih dari 18.000 citra dari tujuh kejadian
+bencana yang semuanya terjadi pada tahun 2017, yaitu \textit{Hurricane
+Harvey}, \textit{Hurricane Irma}, \textit{Hurricane Maria}, gempa bumi
+Mexico, kebakaran hutan California, gempa bumi Iraq-Iran, dan banjir
+Sri Lanka \cite{alam2018crisismmd}. \textit{Dataset} ini menyediakan
+tiga tugas klasifikasi utama: identifikasi keterdampakan informasi
+(\textit{Informative Classification}), kategorisasi kemanusiaan
+(\textit{Humanitarian Categories}), dan penilaian tingkat kerusakan
+(\textit{Damage Severity Assessment}). \textit{CrisisMMD} telah menjadi
+standar evaluasi dalam domain respons bencana dan digunakan secara luas
+oleh komunitas peneliti untuk mengevaluasi berbagai pendekatan
+komputasional \cite{firmansyah2022ensemble}. \par
 
-Dengan tersedianya \textit{dataset} terstruktur seperti \textit{CrisisMMD}, pendekatan berbasis \textit{deep learning} menjadi sangat menjanjikan untuk mengatasi tantangan klasifikasi informasi krisis. Perkembangan \textit{deep learning} dalam \textit{computer vision} telah mendorong peningkatan akurasi klasifikasi citra secara signifikan pada berbagai domain, termasuk respons bencana dimana model dapat mencapai akurasi lebih dari 80\% dalam mengidentifikasi citra terkait bencana \cite{lukauskas2024performance}. Arsitektur \textit{neural network} modern telah mendemonstrasikan keberhasilan luar biasa pada berbagai domain aplikasi, mulai dari pencitraan medis hingga kendaraan otonom, dengan kemampuan ekstraksi fitur otomatis yang melampaui metode rekayasa fitur manual tradisional \cite{abdelrahman2023efficientnet}. \par
+Perkembangan \textit{deep learning} dalam \textit{computer vision}
+telah melahirkan dua paradigma arsitektur yang berbeda secara mendasar
+namun saling melengkapi. Di satu sisi, \textit{Convolutional Neural
+Network} (CNN) telah menjadi paradigma dominan selama lebih dari satu
+dekade berkat kemampuannya menangkap hierarki fitur visual secara lokal
+\cite{lecun1998gradient}\cite{linardos2022deep}. Arsitektur CNN terus
+berkembang, mulai dari pendekatan \textit{compound scaling} pada
+keluarga \textit{EfficientNet} \cite{tan2019efficientnet} hingga
+\textit{EfficientNetV2} yang menghadirkan perbaikan signifikan pada
+kecepatan pelatihan dan akurasi melalui kombinasi \textit{Fused-MBConv}
+dan strategi \textit{progressive learning} \cite{tan2021efficientnetv2}.
+Penelitian pada domain klasifikasi citra bencana menunjukkan bahwa
+keluarga \textit{EfficientNet} secara konsisten mengungguli berbagai
+arsitektur CNN lainnya \cite{alam2021robust}. Evolusi CNN berlanjut
+dengan hadirnya \textit{ConvNeXt} yang mengadopsi prinsip-prinsip
+desain dari arsitektur \textit{Transformer} ke dalam kerangka CNN,
+menghasilkan model yang lebih kuat sekaligus mempertahankan sifat
+konvolusional \cite{liu2022convnext}. \par
 
-Dalam perkembangan \textit{deep learning} untuk \textit{computer vision}, \textit{Convolutional Neural Network} (CNN) telah menjadi paradigma dominan untuk klasifikasi citra bencana selama lebih dari satu dekade \cite{linardos2022deep}. Arsitektur CNN modern seperti \textit{EfficientNet} memanfaatkan \textit{compound scaling} yang menyeimbangkan kedalaman, lebar, dan resolusi jaringan untuk mencapai akurasi tinggi dengan efisiensi komputasi optimal \cite{tan2019efficientnet}. Penelitian terbaru menunjukkan bahwa \textit{EfficientNet} juga efektif untuk klasifikasi citra bencana \cite{mohanty2021multimodal}. Keunggulan CNN terletak pada \textit{inductive bias} berupa lokalitas dan invarians translasi yang sesuai dengan karakteristik data citra \cite{lecun1998gradient}. \par
+Di sisi lain, \textit{Vision Transformer} (ViT) memperkenalkan
+paradigma baru dengan menerapkan mekanisme \textit{self-attention} pada
+sekuens \textit{patch} citra, memungkinkan penangkapan dependensi jarak
+jauh sejak \textit{layer} pertama tanpa dibatasi oleh \textit{receptive
+field} seperti pada CNN \cite{dosovitskiy2021image}. Perkembangan lebih
+lanjut menghasilkan \textit{Swin Transformer} yang mengintegrasikan
+konsep hierarki dan lokalitas dari CNN ke dalam arsitektur
+\textit{Transformer} melalui mekanisme \textit{shifted windows},
+menghasilkan representasi fitur yang lebih kaya dengan kompleksitas
+komputasi yang lebih terkendali \cite{liu2021swin}. Dengan demikian,
+keempat arsitektur yang digunakan dalam penelitian ini (yaitu
+\textit{EfficientNetV2-M}, \textit{ConvNeXt-Base}, \textit{Swin-Small},
+dan ViT-B/16) mewakili ragam arsitektur dari CNN murni hingga
+\textit{Transformer} murni dengan karakteristik yang berbeda dalam
+menangkap pola lokal maupun konteks global. Penelitian terbaru
+menunjukkan bahwa arsitektur berbasis \textit{Transformer} seperti
+\textit{CrisisViT} mulai diterapkan pada domain respons bencana dengan
+performa yang kompetitif \cite{long2023crisisvit}, namun studi
+komparatif yang mencakup ragam arsitektur CNN hingga \textit{Transformer}
+secara sistematis pada \textit{dataset} \textit{CrisisMMD} belum pernah
+dilakukan. \par
 
-Namun, paradigma baru telah muncul dengan berkembangnya arsitektur berbasis \textit{Transformer} untuk \textit{computer vision}. \textit{Vision Transformer} (ViT) menerapkan mekanisme \textit{self-attention} pada sekuens \textit{patch} citra tanpa mengandalkan operasi konvolusi \cite{dosovitskiy2021image}. Berbeda dengan CNN yang memproses informasi secara lokal, ViT mampu menangkap dependensi jarak jauh sejak \textit{layer} awal \cite{han2022survey}. Penelitian terbaru dalam domain respons bencana menunjukkan bahwa arsitektur berbasis \textit{Transformer} seperti \textit{CrisisViT} dapat mencapai performa yang kompetitif pada tugas klasifikasi citra krisis \cite{long2023crisisvit}. ViT telah terbukti dapat mencapai performa kompetitif bahkan melampaui CNN pada berbagai tugas \textit{computer vision} ketika di-\textit{pretrain} dengan \textit{dataset} berskala besar \cite{ahmad2024transformer}. \par
+Mengingat kekuatan yang saling melengkapi dari paradigma CNN dan
+\textit{Transformer}, \textit{ensemble learning} menjadi pendekatan yang
+menjanjikan untuk memaksimalkan performa klasifikasi. \textit{Ensemble
+learning} menggabungkan prediksi dari beberapa model untuk menghasilkan
+prediksi yang lebih \textit{robust} dan akurat dibandingkan model
+tunggal manapun \cite{rokach2010ensemble}. Penelitian terdahulu pada
+\textit{CrisisMMD} menunjukkan bahwa \textit{ensemble} dari beberapa
+model CNN dapat memberikan peningkatan akurasi dibandingkan model
+tunggal \cite{firmansyah2022ensemble}, namun pendekatan tersebut
+terbatas pada \textit{homogeneous ensemble} dari arsitektur yang
+sejenis. \textit{Heterogeneous ensemble} yang menggabungkan model CNN
+dan \textit{Transformer} berpotensi memanfaatkan kekuatan dari kedua
+paradigma secara bersamaan, mengingat keragaman arsitektur yang lebih
+tinggi cenderung menghasilkan peningkatan performa yang lebih signifikan
+\cite{ganaie2022ensemble}, namun potensi ini belum dieksplorasi secara
+mendalam untuk domain klasifikasi informasi krisis. \par
 
-Mengingat kekuatan komplementer dari kedua paradigma, \textit{ensemble learning} menjadi pendekatan yang menjanjikan untuk meningkatkan performa klasifikasi. \textit{Ensemble learning} menggabungkan prediksi dari beberapa model untuk menghasilkan prediksi yang lebih \textit{robust} dan akurat dibandingkan model tunggal \cite{rokach2010ensemble}. Penelitian pada klasifikasi citra media sosial untuk respons bencana menunjukkan bahwa \textit{ensemble} dari beberapa model CNN dapat memberikan peningkatan akurasi yang signifikan dibandingkan model tunggal \cite{firmansyah2022ensemble}. Namun, potensi \textit{ensemble} heterogen yang menggabungkan CNN dan \textit{Transformer} untuk memanfaatkan ekstraksi fitur lokal dan pemodelan konteks global secara simultan belum dieksplorasi secara mendalam untuk domain klasifikasi bencana. \par
+Selain pertanyaan mengenai konfigurasi model mana yang terbaik,
+terdapat kebutuhan untuk memahami faktor-faktor yang berkontribusi
+terhadap performa tersebut. Strategi \textit{fine-tuning} yang
+digunakan dan komposisi model dalam \textit{ensemble} merupakan faktor
+yang dapat mempengaruhi hasil secara signifikan, namun analisis sistematisnya dalam bentuk \textit{ablation study} 
+masih jarang dilakukan pada domain klasifikasi citra bencana.
+Pemahaman mendalam tentang kontribusi masing-masing faktor ini penting
+agar penelitian tidak hanya menghasilkan angka performa tertinggi,
+tetapi juga memberikan wawasan yang dapat direplikasi dan dikembangkan
+lebih lanjut oleh komunitas peneliti. \par
 
-Meskipun peningkatan akurasi merupakan tujuan penting, dalam aplikasi waktu nyata seperti respons bencana, pertukaran antara akurasi dan efisiensi komputasi menjadi pertimbangan kritis yang seringkali diabaikan \cite{menghani2023efficient}. Penelitian menunjukkan bahwa meskipun model \textit{ensemble} dapat meningkatkan akurasi, biaya komputasi dapat meningkat secara proporsional dengan jumlah model yang digabungkan \cite{kumar2023hybrid}. Analisis komprehensif terhadap pertukaran ini diperlukan untuk memberikan panduan praktis bagi praktisi dalam memilih arsitektur model yang sesuai dengan kendala penerapan spesifik \cite{jaidka2023estimating}. \par
-
-Penelitian ini berfokus pada analisis komparatif performa \textit{EfficientNet-B0} sebagai representasi CNN modern, \textit{Vision Transformer} (ViT-B/16) sebagai representasi \textit{pure transformer}, dan \textit{ensemble} heterogen dari kedua model dalam konteks klasifikasi citra informasi krisis menggunakan \textit{dataset} \textit{CrisisMMD}. Selain mengevaluasi akurasi klasifikasi pada tugas \textit{Informative} vs \textit{Not Informative} dan \textit{Humanitarian Categories}, penelitian ini juga menganalisis secara mendalam pertukaran antara peningkatan akurasi dengan biaya komputasi yang diperlukan (\textit{inference time}, \textit{memory usage}, \textit{FLOPs}), memberikan wawasan praktis untuk penerapan sistem klasifikasi otomatis dalam respons bencana. \par
+Berdasarkan uraian di atas, penelitian ini melakukan analisis performa
+secara komprehensif antara \textit{ensemble} heterogen dan model tunggal
+untuk klasifikasi informasi krisis pada \textit{dataset}
+\textit{CrisisMMD}. Empat arsitektur yang mewakili ragam CNN hingga
+\textit{Transformer} (\textit{EfficientNetV2-M}, \textit{ConvNeXt-Base},
+\textit{Swin-Small}, dan ViT-B/16) dievaluasi secara individual maupun
+dalam berbagai konfigurasi \textit{ensemble} pada ketiga tugas
+klasifikasi \textit{CrisisMMD}. Penelitian ini juga melakukan
+\textit{ablation study} untuk menganalisis faktor-faktor yang
+mempengaruhi performa, sehingga memberikan kontribusi yang tidak hanya
+berupa hasil komparasi, tetapi juga pemahaman yang lebih dalam tentang
+perilaku \textit{ensemble} heterogen di domain respons bencana. \par
 
 
 \section{Rumusan Masalah} \label{I.RumusanMasalah}
-Berdasarkan latar belakang yang telah diuraikan, rumusan masalah dalam penelitian ini adalah: \par
+Berdasarkan latar belakang yang telah diuraikan, rumusan masalah dalam
+penelitian ini adalah: \par
 
 \begin{enumerate}[noitemsep]
-    \item Bagaimana performa \textit{EfficientNet-B0} sebagai representasi CNN modern dalam klasifikasi citra informasi krisis?
+    \item Bagaimana performa masing-masing model tunggal yang mewakili
+    ragam arsitektur CNN hingga \textit{Transformer}
+    (\textit{EfficientNetV2-M}, \textit{ConvNeXt-Base},
+    \textit{Swin-Small}, dan ViT-B/16) dalam klasifikasi informasi
+    krisis pada ketiga tugas \textit{CrisisMMD}?
 
-    \item Bagaimana performa \textit{Vision Transformer} (ViT-B/16) sebagai representasi \textit{pure transformer} dalam klasifikasi citra informasi krisis?
+    \item Apakah \textit{ensemble} heterogen yang menggabungkan model
+    CNN dan \textit{Transformer} mampu mengungguli performa model
+    tunggal terbaik maupun \textit{ensemble} homogen, dan strategi
+    \textit{ensemble} mana yang paling efektif untuk klasifikasi
+    informasi krisis?
 
-    \item Bagaimana performa \textit{ensemble} heterogen (\textit{EfficientNet-B0} + ViT-B/16) dibandingkan dengan model tunggal terbaik berdasarkan metrik klasifikasi?
-
-    \item Bagaimana pertukaran antara peningkatan akurasi dan biaya komputasi (\textit{inference time}, \textit{memory usage}, \textit{FLOPs}) pada ketiga konfigurasi model?
+    \item Faktor-faktor apa saja yang secara signifikan mempengaruhi
+    performa \textit{ensemble} heterogen, dan bagaimana kontribusi
+    masing-masing faktor tersebut terhadap hasil klasifikasi
+    berdasarkan \textit{ablation study}?
 \end{enumerate}
 
 
 \section{Tujuan Penelitian} \label{I.Tujuan}
-Berdasarkan rumusan masalah yang telah diuraikan, tujuan dari penelitian ini adalah: \par
+Berdasarkan rumusan masalah yang telah diuraikan, tujuan dari penelitian
+ini adalah: \par
 
 \begin{enumerate}[noitemsep]
-    \item Mengimplementasikan dan mengevaluasi \textit{EfficientNet-B0} untuk klasifikasi citra informasi krisis pada \textit{dataset} \textit{CrisisMMD}.
+    \item Mengimplementasikan dan mengevaluasi empat arsitektur model
+    tunggal (\textit{EfficientNetV2-M}, \textit{ConvNeXt-Base},
+    \textit{Swin-Small}, dan ViT-B/16) pada ketiga tugas klasifikasi
+    \textit{CrisisMMD} untuk menganalisis performa masing-masing
+    arsitektur dalam mewakili ragam CNN hingga \textit{Transformer}.
 
-    \item Mengimplementasikan dan mengevaluasi \textit{Vision Transformer} (ViT-B/16) untuk klasifikasi citra informasi krisis pada \textit{dataset} \textit{CrisisMMD}.
+    \item Mengimplementasikan dan mengevaluasi berbagai konfigurasi
+    \textit{ensemble} heterogen dengan membandingkan performa
+    \textit{ensemble} terhadap model tunggal terbaik dan
+    \textit{ensemble} homogen, menggunakan strategi \textit{simple
+    averaging}, \textit{weighted voting}, dan \textit{stacking}.
 
-    \item Mengimplementasikan dan mengevaluasi \textit{ensemble} heterogen dengan strategi \textit{simple averaging} dan \textit{weighted voting}.
-
-    \item Menganalisis pertukaran antara akurasi dan efisiensi komputasi untuk memberikan rekomendasi praktis dalam pemilihan arsitektur model.
+    \item Melakukan \textit{ablation study} untuk mengidentifikasi dan
+    mengukur kontribusi faktor-faktor yang mempengaruhi performa
+    \textit{ensemble} heterogen, sehingga menghasilkan pemahaman yang
+    dapat direplikasi dan dikembangkan lebih lanjut.
 \end{enumerate}
 
 
 \section{Batasan Masalah} \label{I.Batasan}
-Agar penelitian ini lebih fokus dan terarah, ditetapkan batasan masalah sebagai berikut: \par
+Agar penelitian ini lebih fokus dan terarah, ditetapkan batasan masalah
+sebagai berikut: \par
 
 \begin{enumerate}[noitemsep]
-    \item Penelitian hanya berfokus pada klasifikasi citra dari media sosial untuk respons bencana, tidak termasuk analisis teks atau multimodal.
+    \item Penelitian hanya berfokus pada klasifikasi citra dari media
+    sosial untuk respons bencana, tidak termasuk analisis teks atau
+    pendekatan multimodal.
 
-    \item Model CNN yang digunakan dibatasi pada \textit{EfficientNet-B0} sebagai representasi CNN modern yang efisien.
+    \item Arsitektur model yang digunakan dibatasi pada empat model yang
+    mewakili ragam CNN hingga \textit{Transformer}, yaitu
+    \textit{EfficientNetV2-M}, \textit{ConvNeXt-Base},
+    \textit{Swin-Small}, dan ViT-B/16.
 
-    \item Model \textit{Transformer} yang digunakan dibatasi pada \textit{Vision Transformer} (ViT-B/16) sebagai representasi \textit{pure transformer}.
+    \item Strategi \textit{ensemble} yang dievaluasi dibatasi pada
+    \textit{simple averaging}, \textit{weighted voting}, dan
+    \textit{stacking} dengan \textit{Logistic Regression} sebagai
+    \textit{meta-learner}.
 
-    \item \textit{Ensemble} dibatasi pada kombinasi heterogen kedua model dengan strategi \textit{simple averaging} dan \textit{weighted voting}.
+    \item \textit{Dataset} yang digunakan adalah \textit{CrisisMMD}
+    yang mencakup tujuh jenis bencana alam pada tiga tugas klasifikasi:
+    \textit{Informative Classification} (Task 1), \textit{Humanitarian
+    Categories} (Task 2), dan \textit{Damage Severity Assessment}
+    (Task 3).
 
-    \item \textit{Dataset} yang digunakan adalah \textit{CrisisMMD} yang mencakup tujuh jenis bencana alam.
+    \item \textit{Ablation study} dilakukan untuk menganalisis
+    faktor-faktor yang mempengaruhi performa model, dengan cakupan
+    aspek yang ditentukan berdasarkan hasil eksperimen awal.
 
-    \item Tugas klasifikasi yang dievaluasi adalah \textit{Informative} vs \textit{Not Informative} (klasifikasi biner) dan \textit{Humanitarian Categories} (klasifikasi multi-kelas).
+    \item Analisis efisiensi komputasi (\textit{inference time},
+    \textit{memory usage}, FLOPs) dilakukan sebagai analisis pendukung
+    pada Task 1, bukan sebagai tujuan utama penelitian.
 
-    \item Evaluasi dilakukan menggunakan metrik \textit{accuracy}, \textit{precision}, \textit{recall}, \textit{F1-score}, \textit{confusion matrix}, \textit{inference time}, \textit{memory usage}, dan \textit{FLOPs}.
-
-    \item Penelitian tidak mencakup penerapan sistem ke lingkungan produksi atau pengembangan aplikasi pengguna akhir.
+    \item Penelitian tidak mencakup penerapan sistem ke lingkungan
+    produksi atau pengembangan aplikasi pengguna akhir.
 \end{enumerate}
 
 
@@ -76,20 +217,39 @@ Manfaat yang diharapkan dari penelitian ini adalah: \par
 
 \subsection{Manfaat Teoritis}
 \begin{itemize}[noitemsep]
-    \item Memberikan kontribusi pada penelitian klasifikasi citra media sosial untuk respons bencana dengan membandingkan secara mendalam paradigma CNN dan \textit{Vision Transformer}.
+    \item Memberikan kontribusi berupa studi komparatif sistematis yang
+    mencakup ragam arsitektur CNN hingga \textit{Transformer} pada
+    domain klasifikasi informasi krisis, yang selama ini belum pernah
+    dilakukan secara komprehensif pada \textit{dataset}
+    \textit{CrisisMMD}.
 
-    \item Memperkaya literatur mengenai \textit{ensemble learning} dengan mengeksplorasi kombinasi heterogen antara CNN dan \textit{Transformer} untuk tugas klasifikasi citra.
+    \item Memperkaya literatur mengenai \textit{ensemble learning}
+    dengan mengeksplorasi efektivitas \textit{ensemble} heterogen yang
+    menggabungkan paradigma CNN dan \textit{Transformer}, serta
+    membandingkannya secara langsung dengan \textit{ensemble} homogen.
 
-    \item Menyediakan analisis komprehensif mengenai pertukaran akurasi versus efisiensi komputasi yang dapat menjadi referensi untuk penelitian selanjutnya.
+    \item Menyediakan hasil \textit{ablation study} yang dapat menjadi
+    referensi bagi penelitian selanjutnya dalam memahami faktor-faktor
+    yang menentukan keberhasilan \textit{ensemble} heterogen di domain
+    respons bencana.
 \end{itemize}
 
 \subsection{Manfaat Praktis}
 \begin{itemize}[noitemsep]
-    \item Memberikan panduan praktis bagi praktisi dalam memilih arsitektur model yang sesuai untuk aplikasi klasifikasi informasi krisis dengan mempertimbangkan kendala sumber daya komputasi.
+    \item Memberikan panduan berbasis bukti eksperimen bagi praktisi
+    dalam memilih konfigurasi model yang sesuai untuk sistem
+    klasifikasi informasi krisis, dengan mempertimbangkan karakteristik
+    masing-masing arsitektur dan kebutuhan penerapan.
 
-    \item Membantu pengembangan sistem respons bencana berbasis \textit{Artificial Intelligence} (AI) yang lebih efisien melalui pemahaman yang lebih baik tentang pertukaran performa model.
+    \item Membantu pengembangan sistem respons bencana berbasis
+    \textit{Artificial Intelligence} (AI) yang lebih akurat melalui
+    pemahaman yang lebih dalam tentang kekuatan yang saling melengkapi
+    antara arsitektur CNN dan \textit{Transformer} dalam konteks
+    \textit{ensemble}.
 
-    \item Menjadi referensi untuk implementasi sistem klasifikasi otomatis pada aplikasi waktu nyata dengan keterbatasan komputasi di lapangan.
+    \item Menjadi referensi implementasi sistem klasifikasi otomatis
+    yang dapat diadaptasi untuk berbagai skenario klasifikasi citra
+    bencana dengan karakteristik yang serupa.
 \end{itemize}
 
 
@@ -97,16 +257,34 @@ Manfaat yang diharapkan dari penelitian ini adalah: \par
 Sistematika penulisan tugas akhir ini disusun sebagai berikut: \par
 
 \subsection*{Bab I}
-Bab ini membahas latar belakang penelitian, rumusan masalah, tujuan penelitian, batasan masalah, manfaat penelitian, dan sistematika penulisan. \par
+Bab ini membahas latar belakang penelitian, rumusan masalah, tujuan
+penelitian, batasan masalah, manfaat penelitian, dan sistematika
+penulisan. \par
 
 \subsection*{Bab II}
-Bab ini menguraikan tinjauan pustaka dari penelitian terdahulu serta dasar teori yang menjadi landasan penelitian, termasuk klasifikasi citra untuk respons bencana, \textit{dataset} \textit{CrisisMMD}, arsitektur \textit{EfficientNet}, \textit{Vision Transformer}, \textit{ensemble learning}, \textit{transfer learning}, serta metrik evaluasi. \par
+Bab ini menguraikan tinjauan pustaka dari penelitian terdahulu serta
+dasar teori yang menjadi landasan penelitian, termasuk klasifikasi
+citra untuk respons bencana, \textit{dataset} \textit{CrisisMMD},
+arsitektur \textit{EfficientNetV2}, \textit{ConvNeXt}, \textit{Swin
+Transformer}, \textit{Vision Transformer}, \textit{ensemble learning},
+\textit{transfer learning}, serta metrik evaluasi. \par
 
 \subsection*{Bab III}
-Bab ini menjelaskan alur penelitian, penjabaran langkah-langkah penelitian, alat dan bahan yang digunakan, metode pengembangan yang meliputi preparasi \textit{dataset}, arsitektur dan konfigurasi model, strategi \textit{ensemble}, serta rancangan pengujian. \par
+Bab ini menjelaskan alur penelitian, penjabaran langkah-langkah
+penelitian, alat dan bahan yang digunakan, metode pengembangan yang
+meliputi preparasi \textit{dataset}, konfigurasi model, strategi
+\textit{ensemble}, rancangan \textit{ablation study}, serta rancangan
+pengujian. \par
 
 \subsection*{Bab IV}
-Bab ini menyajikan hasil implementasi dan pengujian yang telah dilakukan, analisis performa model tunggal (\textit{EfficientNet-B0} dan ViT-B/16), analisis performa \textit{ensemble}, analisis pertukaran akurasi versus efisiensi komputasi, serta pembahasan mendalam terhadap perbandingan hasil yang diperoleh. \par
+Bab ini menyajikan hasil implementasi dan pengujian yang telah
+dilakukan, analisis performa model tunggal, analisis performa
+\textit{ensemble} dibandingkan model tunggal dan \textit{ensemble}
+homogen, hasil \textit{ablation study}, analisis pendukung efisiensi
+komputasi, serta pembahasan mendalam terhadap seluruh hasil yang
+diperoleh. \par
 
 \subsection*{Bab V}
-Bab ini berisi kesimpulan dari hasil penelitian dan saran untuk pengembangan penelitian selanjutnya. \par
+Bab ini berisi kesimpulan dari hasil penelitian yang menjawab seluruh
+rumusan masalah, serta saran untuk pengembangan penelitian
+selanjutnya. \par
