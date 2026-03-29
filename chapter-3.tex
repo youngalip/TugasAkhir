@@ -7,16 +7,19 @@ untuk melakukan analisis komparatif sistematis terhadap empat arsitektur
 \textit{deep learning} pada tugas klasifikasi citra informasi krisis dari
 media sosial. Alur penelitian mencakup seluruh tahapan dari persiapan data
 hingga evaluasi berbagai konfigurasi \textit{ensemble} dan \textit{ablation
-study}, dan digambarkan secara sistematis dalam diagram alir pada
-Gambar~\ref{fig:3.alur}. \par
+study} komponen-per-komponen, dan digambarkan secara sistematis dalam
+diagram alir pada Gambar~\ref{fig:3.alur}. \par
 
 % TODO: Buat flowchart penelitian (dibuat sendiri)
-% Alur: Mulai → Studi Literatur → Persiapan Dataset → Pra-pemrosesan →
-%        Pemilihan & Konfigurasi Model →
-%        [Proposed Pipeline] Pelatihan Two-Stage + Augmentasi →
-%        [Baseline Pipeline] Pelatihan Full Fine-Tuning Tanpa Augmentasi →
-%        Evaluasi Model Tunggal → Pembentukan Ensemble →
-%        Evaluasi Ensemble → Ablation Study → Analisis & Pembahasan → Selesai
+% Alur: Mulai → Studi Literatur → Persiapan Dataset →
+%        Pra-pemrosesan (resize, normalisasi, class merging Task 2) →
+%        Pemilihan & Konfigurasi Model (4 arsitektur) →
+%        Pelatihan Two-Stage + Loss per Task (7 variant ablation) →
+%        Evaluasi Model Tunggal (metrik + training time) →
+%        Cross-Variant Model Selection →
+%        Pembentukan Ensemble E1-E8 →
+%        Ablation Study (7 variant) →
+%        Analisis & Pembahasan → Selesai
 \begin{figure}[H]
     \centering
     % \includegraphics[width=0.6\textwidth]{figure/flowchart_penelitian.png}
@@ -30,99 +33,134 @@ Gambar~\ref{fig:3.alur}. \par
 Berdasarkan Gambar~\ref{fig:3.alur}, penelitian ini dilaksanakan melalui
 delapan tahapan sistematis yang saling berkaitan. Tahapan dimulai dari
 studi literatur untuk membangun landasan teoritis, dilanjutkan dengan
-persiapan dan pra-pemrosesan data, pelatihan model dengan dua kondisi
-\textit{pipeline} yang berbeda, hingga evaluasi komparatif model tunggal,
-berbagai konfigurasi \textit{ensemble}, dan \textit{ablation study}. \par
+persiapan dan pra-pemrosesan data, pelatihan model dengan tujuh variant
+konfigurasi untuk \textit{ablation study}, hingga evaluasi komparatif
+model tunggal, seleksi model terbaik secara \textit{cross-variant}, dan
+pembentukan berbagai konfigurasi \textit{ensemble}. \par
 
 \subsection{Studi Literatur} \label{III.Langkah1}
 Tahap awal penelitian adalah pengumpulan dan analisis referensi ilmiah
 yang relevan dengan topik penelitian. Kegiatan yang dilakukan meliputi
 penelusuran jurnal dan artikel konferensi internasional terkait klasifikasi
-citra bencana, arsitektur CNN modern, \textit{Vision Transformer}, dan
-\textit{ensemble learning} dari basis data seperti IEEE Xplore, arXiv,
-ACM Digital Library, dan Google Scholar. Hasil dari tahap ini menjadi
-landasan teoritis untuk seluruh keputusan metodologis dalam penelitian. \par
+citra bencana, arsitektur CNN modern, \textit{Vision Transformer},
+\textit{ensemble learning}, dan penanganan ketidakseimbangan kelas dari
+basis data seperti IEEE Xplore, arXiv, ACM Digital Library, dan Google
+Scholar. Hasil dari tahap ini menjadi landasan teoritis untuk seluruh
+keputusan metodologis dalam penelitian, termasuk pemilihan arsitektur,
+strategi \textit{loss function} per tugas, dan komponen
+\textit{ablation study}. \par
 
 \subsection{Persiapan Dataset} \label{III.Langkah2}
 Dataset yang digunakan adalah \textit{CrisisMMD}, sebuah \textit{dataset}
 standar untuk penelitian klasifikasi informasi krisis dari media sosial
 yang telah dijelaskan secara rinci pada Subbab~\ref{II.Teori.Dataset}.
 Penelitian ini menggunakan modalitas citra saja (\textit{image-only})
-pada ketiga tugas klasifikasi yang tersedia: Task 1
-(\textit{Informative Classification}), Task 2
-(\textit{Humanitarian Categories}), dan Task 3
-(\textit{Damage Severity Assessment}). \par
-
-Pembagian data menggunakan \textit{split} resmi yang disediakan oleh
-pembuat \textit{dataset} dengan rasio 70\% \textit{training set}, 15\%
-\textit{validation set}, dan 15\% \textit{test set}. Penggunaan
-\textit{split} resmi ini bertujuan untuk memastikan perbandingan yang
-adil dengan penelitian sebelumnya yang menggunakan dataset yang sama. \par
+pada ketiga tugas klasifikasi: Task 1 (\textit{Informative
+Classification}), Task 2 (\textit{Humanitarian Categories}), dan Task 3
+(\textit{Damage Severity Assessment}). Pembagian data menggunakan
+\textit{split} resmi yang disediakan oleh pembuat \textit{dataset} dengan
+rasio 70\% \textit{training set}, 15\% \textit{validation set}, dan 15\%
+\textit{test set}, untuk memastikan perbandingan yang adil dengan
+penelitian sebelumnya. \par
 
 \subsection{Pra-pemrosesan Data} \label{III.Langkah3}
-Tahap pra-pemrosesan mempersiapkan citra dalam format yang sesuai untuk
-pelatihan dan evaluasi model. Proses yang diterapkan berbeda antara fase
-pelatihan dan fase evaluasi, serta berbeda antara \textit{proposed
-pipeline} dan \textit{baseline pipeline}. \par
+Tahap pra-pemrosesan mempersiapkan data dalam format yang sesuai untuk
+pelatihan dan evaluasi model, terdiri dari dua bagian: penanganan label
+dan transformasi citra. \par
 
-Pada \textit{proposed pipeline}, augmentasi data diterapkan selama fase
-pelatihan untuk meningkatkan keragaman data dan mengurangi risiko
-\textit{overfitting}. Teknik augmentasi yang digunakan meliputi
-\textit{random resized crop} dengan skala 0.8--1.0, \textit{random
-horizontal flip} dengan probabilitas 0.5, rotasi acak hingga 15 derajat,
-\textit{color jitter} untuk variasi kecerahan dan kontras, serta
-\textit{random erasing} dengan probabilitas 0.2. Pada \textit{baseline
-pipeline}, tidak diterapkan augmentasi apapun — citra hanya melalui
-\textit{resize} dan normalisasi langsung. \par
+\subsubsection{Penggabungan Kelas Task 2}
+Task 2 (\textit{Humanitarian Categories}) memiliki distribusi kelas yang
+sangat tidak seimbang, dimana empat kelas minoritas (\textit{affected
+individuals}, \textit{vehicle damage}, \textit{injured or dead people},
+dan \textit{missing or found people}) hanya mencakup 5.5\% dari total
+data. Keempat kelas tersebut memiliki kesamaan semantik fundamental —
+semuanya merepresentasikan dampak langsung bencana terhadap manusia dan
+kendaraan. Oleh karena itu, keempat kelas ini digabungkan menjadi satu
+kelas \textit{direct human impact}, mereduksi delapan kelas asli menjadi
+lima kelas. Pemetaan lengkap ditampilkan pada
+Tabel~\ref{table:crisismmd_task2_merge}. Pengaruh keputusan ini
+dievaluasi melalui variant \textit{wo\_merge} pada \textit{ablation
+study}. \par
 
-Pada fase evaluasi, kedua \textit{pipeline} menggunakan prosedur yang
-identik: citra diubah ukurannya menggunakan \textit{resize} diikuti
-\textit{center crop} tanpa augmentasi untuk memastikan evaluasi yang
-konsisten dan adil. \par
+\subsubsection{Transformasi Citra}
+Pada fase evaluasi dan validasi, seluruh citra diproses dengan
+\textit{resize} diikuti \textit{center crop} tanpa augmentasi untuk
+konsistensi evaluasi di semua kondisi. Pada fase pelatihan,
+\textit{proposed pipeline} menerapkan augmentasi domain-spesifik secara
+aktif pada seluruh task. Satu-satunya variant \textit{ablation study}
+yang tidak menggunakan augmentasi adalah \textit{wo\_augmentation},
+untuk mengukur kontribusi augmentasi secara kuantitatif. Teknik
+augmentasi yang diterapkan dipilih berdasarkan karakteristik khas citra
+media sosial saat bencana, sebagaimana dirinci pada
+Tabel~\ref{table:augmentasi}. \par
 
-Ukuran citra masukan disesuaikan dengan kebutuhan masing-masing arsitektur:
-384$\times$384 piksel untuk ViT-B/16 dan 224$\times$224 piksel untuk
-\textit{EfficientNetV2-M}, \textit{ConvNeXt-Base}, dan \textit{Swin-Small}.
-Seluruh citra dinormalisasi menggunakan nilai \textit{mean}
-$[0.485, 0.456, 0.406]$ dan standar deviasi $[0.229, 0.224, 0.225]$
-yang merupakan statistik dari \textit{dataset ImageNet}. \par
+\begin{table}[h]
+    \centering
+    \caption{Teknik augmentasi domain-spesifik yang diterapkan pada
+    \textit{proposed pipeline}}
+    \label{table:augmentasi}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{|l|l|p{0.42\textwidth}|}
+        \hline
+        \textbf{Teknik} & \textbf{Parameter} &
+        \textbf{Justifikasi Domain} \\
+        \hline
+        Random Resized Crop    & skala 0.8--1.0  &
+            Variasi skala dan posisi objek dalam frame \\
+        Random Horizontal Flip & p=0.5           &
+            Variasi orientasi pengambilan foto \\
+        Random Rotation        & $\pm$15°        &
+            Variasi sudut kamera saat kondisi darurat \\
+        Color Jitter           & brightness, contrast, saturation, hue=0.2 &
+            Variasi kondisi pencahayaan dan perangkat kamera \\
+        Gaussian Blur          & kernel 3$\times$3, $\sigma \in [0.1, 1.0]$ &
+            Simulasi blur akibat gerakan kamera, asap, debu, atau hujan \\
+        Random Adjust Sharpness & factor=2, p=0.3 &
+            Variasi kualitas JPEG akibat kompresi berulang saat foto
+            di-\textit{repost} \\
+        Random Grayscale       & p=0.1           &
+            Simulasi foto grayscale atau kondisi minim cahaya \\
+        \hline
+    \end{tabular}}
+\end{table}
+
+Ukuran citra masukan disesuaikan per arsitektur: 384$\times$384 piksel
+untuk ViT-B/16 dan 224$\times$224 piksel untuk \textit{EfficientNetV2-M},
+\textit{ConvNeXt-Base}, dan \textit{Swin-Small}. Seluruh citra
+dinormalisasi menggunakan \textit{mean} $[0.485, 0.456, 0.406]$ dan
+standar deviasi $[0.229, 0.224, 0.225]$ dari \textit{ImageNet}. \par
 
 \subsection{Pemilihan dan Konfigurasi Model} \label{III.Langkah4}
 Penelitian ini menggunakan empat arsitektur yang dipilih untuk
 merepresentasikan spektrum dari CNN murni hingga \textit{Transformer}
-murni, sehingga memungkinkan analisis komparatif yang komprehensif
-terhadap karakteristik masing-masing paradigma. \par
+murni. \par
 
-\textbf{EfficientNetV2-M} dipilih sebagai representasi CNN modern yang
-efisien. Arsitektur \textit{EfficientNet} telah terbukti secara konsisten
-mengungguli berbagai arsitektur CNN lainnya pada klasifikasi citra bencana
-dari media sosial, dan \textit{EfficientNetV2-M} merupakan generasi
-lanjutan yang menghadirkan peningkatan signifikan pada kecepatan pelatihan
-dan akurasi melalui blok \textit{Fused-MBConv} dan strategi
-\textit{progressive learning}. \par
+\textbf{EfficientNetV2-M} dipilih berdasarkan dua landasan. Secara
+empiris, Alam et al. menunjukkan bahwa \textit{EfficientNet-B1}
+mengungguli seluruh sembilan arsitektur pembanding pada
+\textit{benchmark CrisisMMD} dengan rata-rata \textit{F1-score} 0.801
+\cite{ofli2020benchmarks}. Secara motivasional, Firmansyah et al.
+secara eksplisit mengidentifikasi \textit{EfficientNetV2} sebagai
+arsitektur yang menjanjikan untuk dieksplorasi di domain respons
+bencana karena belum pernah diterapkan sebelumnya
+\cite{firmansyah2022ensemble}. Penelitian ini secara langsung
+merespons rekomendasi tersebut. \par
 
-\textbf{ConvNeXt-Base} dipilih sebagai representasi CNN yang mengadopsi
-prinsip desain \textit{Transformer}, dengan tujuan mengevaluasi sejauh
-mana CNN murni dapat bersaing dengan \textit{Transformer} ketika
-menggunakan praktik desain modern. Relevansi arsitektur berbasis
-\textit{ConvNeXt} untuk domain klasifikasi citra bencana telah dikonfirmasi
-pada penelitian sebelumnya yang menunjukkan peningkatan performa
-dibandingkan arsitektur CNN generasi sebelumnya. \par
+\textbf{ConvNeXt-Base} dipilih untuk mengevaluasi sejauh mana CNN yang
+mengadopsi prinsip desain \textit{Transformer} dapat bersaing dengan
+\textit{Transformer} sesungguhnya. Relevansi arsitektur berbasis
+\textit{ConvNeXt} pada domain ini dikonfirmasi oleh Debnath et al.
+\cite{debnath2024convsfnet}. \par
 
 \textbf{Swin-Small} dipilih sebagai representasi \textit{Transformer}
-hierarkis yang mengintegrasikan konsep lokalitas dari CNN ke dalam
-kerangka \textit{Transformer} melalui mekanisme \textit{shifted window
-attention}. Varian \textit{Small} dipilih untuk menjaga keseimbangan
-antara kapasitas model dan efisiensi komputasi. \par
+hierarkis yang mengintegrasikan konsep lokalitas CNN melalui
+\textit{shifted window attention}. Varian \textit{Small} dipilih untuk
+keseimbangan kapasitas dan efisiensi komputasi. \par
 
 \textbf{ViT-B/16} dipilih sebagai representasi \textit{Transformer}
-murni tanpa komponen konvolusional, yang memproses citra secara global
-melalui mekanisme \textit{self-attention} pada seluruh \textit{patch}
-sejak lapisan pertama. Keempat model diinisialisasi dengan bobot
-\textit{pre-trained} dari \textit{ImageNet-21k} yang dimuat melalui
-pustaka \texttt{timm}. \par
-
-Ringkasan konfigurasi keempat model disajikan pada
+murni tanpa komponen konvolusional. Keempat model diinisialisasi
+dengan bobot \textit{pre-trained} dari \textit{ImageNet-21k} melalui
+pustaka \texttt{timm}. Ringkasan konfigurasi disajikan pada
 Tabel~\ref{table:model_config}. \par
 
 \begin{table}[h]
@@ -144,45 +182,73 @@ Tabel~\ref{table:model_config}. \par
 \end{table}
 
 \subsection{Pelatihan Model} \label{III.Langkah5}
-Penelitian ini menjalankan dua kondisi pelatihan yang berbeda untuk
-seluruh eksperimen: \textit{proposed pipeline} yang merupakan konfigurasi
-utama penelitian, dan \textit{baseline pipeline} yang digunakan untuk
-keperluan \textit{ablation study}. \par
 
-\subsubsection{Proposed Pipeline}
-\textit{Proposed pipeline} menggunakan strategi \textit{two-stage
-fine-tuning} yang telah dijelaskan pada Subbab~\ref{II.Teori.Transfer},
-dikombinasikan dengan augmentasi data pada fase pelatihan. \par
+\subsubsection{Strategi Two-Stage Fine-Tuning}
+Pelatihan menggunakan \textit{two-stage fine-tuning} untuk mencegah
+\textit{catastrophic forgetting} sebagaimana dijelaskan pada
+Subbab~\ref{II.Teori.Transfer}. \par
 
-\textbf{Stage 1 (Freeze Backbone)} berlangsung selama 5 epoch. Seluruh
-lapisan \textit{backbone} dibekukan dan hanya lapisan \textit{classifier
-head} yang dilatih. Hal ini memungkinkan \textit{head} yang diinisialisasi
-secara acak untuk konvergen terlebih dahulu tanpa merusak representasi
-\textit{pretrained}. \textit{Learning rate} yang digunakan pada stage ini
-adalah $5 \times 10^{-4}$ untuk \textit{EfficientNetV2-M},
-\textit{ConvNeXt-Base}, dan \textit{Swin-Small}, serta $1 \times 10^{-3}$
-untuk ViT-B/16. \par
+\textbf{Stage 1 (Freeze Backbone)} — 10 epoch. Seluruh \textit{backbone}
+dibekukan; hanya \textit{classifier head} yang dilatih dengan
+\textit{learning rate} $5 \times 10^{-4}$ (EfficientNetV2-M,
+ConvNeXt-Base, Swin-Small) atau $1 \times 10^{-3}$ (ViT-B/16). \par
 
-\textbf{Stage 2 (Unfreeze All)} berlangsung maksimal 45 epoch dengan
-\textit{early stopping} berbasis \textit{validation loss} dengan
-\textit{patience} 5 epoch. Seluruh lapisan dibuka dengan
-\textit{differential learning rate}: \textit{backbone} menggunakan
-\textit{learning rate} 10 kali lebih kecil dibandingkan \textit{head}
-untuk menjaga representasi yang telah dipelajari. \par
+\textbf{Stage 2 (Unfreeze All)} — maksimal 40 epoch dengan
+\textit{early stopping} berbasis \textit{validation accuracy} (patience
+5 epoch). Seluruh lapisan dibuka dengan \textit{differential learning
+rate}: \textit{head} menggunakan $5 \times 10^{-5}$; \textit{backbone}
+menggunakan $1 \times 10^{-6}$ (EfficientNetV2-M, ConvNeXt-Base,
+ViT-B/16) atau $5 \times 10^{-7}$ (Swin-Small). \par
 
-\subsubsection{Baseline Pipeline}
-\textit{Baseline pipeline} menggunakan \textit{full fine-tuning} tanpa
-augmentasi data. Seluruh lapisan model dilatih sekaligus sejak epoch
-pertama dengan \textit{learning rate} yang seragam tanpa pemisahan tahap.
-Total epoch maksimum tetap sama (50 epoch) dengan \textit{early stopping}
-yang identik untuk memastikan perbandingan yang adil. \par
+\subsubsection{Strategi Loss Function per Tugas}
+Fungsi \textit{loss} disesuaikan dengan karakteristik distribusi kelas
+masing-masing tugas, sebagaimana dirangkum pada
+Tabel~\ref{table:loss_strategy}. \par
+
+\begin{table}[h]
+    \centering
+    \caption{Strategi \textit{loss function} per tugas dan per stage}
+    \label{table:loss_strategy}
+    \begin{tabular}{|l|l|l|}
+        \hline
+        \textbf{Task} & \textbf{Stage 1} & \textbf{Stage 2} \\
+        \hline
+        Task 1 (\textit{Informative})  & Standard CE & Standard CE \\
+        Task 2 (\textit{Humanitarian}) & Focal Loss ($\gamma=2.0$) & Focal Loss ($\gamma=1.0$) \\
+        Task 3 (\textit{Damage})       & Weighted CE + MixUp & Weighted CE + MixUp \\
+        \hline
+    \end{tabular}
+    \begin{flushleft}
+        \footnotesize{CE = \textit{Cross-Entropy Loss}. Seluruh
+        \textit{loss} menggunakan \textit{label smoothing} 0.1.
+        MixUp hanya diterapkan saat pelatihan, tidak saat validasi
+        dan evaluasi.}
+    \end{flushleft}
+\end{table}
+
+Task 1 menggunakan \textit{Standard CE} karena distribusi kelas
+seimbang. Task 2 menggunakan \textit{Focal Loss} karena ketidakseimbangan
+ekstrem (rasio $\approx$1:1.291 kelas terkecil) — $\gamma=2.0$ pada
+Stage 1 untuk \textit{bootstrap} pembelajaran kelas minoritas, turun ke
+$\gamma=1.0$ pada Stage 2 agar penyesuaian lebih halus. Pilihan
+\textit{Focal Loss} atas \textit{Weighted CE} untuk Task 2 dilandasi
+oleh Singh et al. \cite{singh2023bbfl}. Task 3 menggunakan
+\textit{Weighted CE} karena ketidakseimbangannya bersifat
+\textit{moderate} (63\%:24\%:13\%) sehingga pembobotan sederhana sudah
+memadai, didukung oleh Polat et al. \cite{polat2025cdwce}. \par
+
+\subsubsection{MixUp pada Task 3}
+Task 3 menggunakan \textit{MixUp} ($\alpha=0.4$) selama pelatihan untuk
+mendorong \textit{smooth decision boundary} antar kelas yang memiliki
+ambiguitas visual tinggi (lihat Gambar~\ref{fig:task3_samples}). Nilai
+$\lambda = \max(\lambda, 1-\lambda)$ memastikan sampel campuran selalu
+lebih dekat ke salah satu sampel asli. Evaluasi selalu dilakukan pada
+data asli. \par
 
 \subsubsection{Konfigurasi Umum}
-\textit{Optimizer} yang digunakan pada kedua \textit{pipeline} adalah
-AdamW dengan \textit{weight decay} 0.01 dan penjadwalan
-\textit{cosine annealing}. \textit{Loss function} yang digunakan adalah
-\textit{cross-entropy loss} dengan \textit{label smoothing} 0.1.
-Ringkasan seluruh \textit{hyperparameter} disajikan pada
+\textit{Optimizer} yang digunakan adalah AdamW (\textit{weight decay}
+0.01) dengan penjadwalan \textit{cosine annealing}. Ringkasan seluruh
+\textit{hyperparameter} disajikan pada
 Tabel~\ref{table:hyperparameter}. \par
 
 \begin{table}[h]
@@ -190,88 +256,208 @@ Tabel~\ref{table:hyperparameter}. \par
     \caption{Konfigurasi \textit{hyperparameter} pelatihan}
     \label{table:hyperparameter}
     \resizebox{\textwidth}{!}{%
-    \begin{tabular}{|l|l|l|}
+    \begin{tabular}{|l|l|}
         \hline
-        \textbf{Parameter} &
-        \textbf{Proposed Pipeline} &
-        \textbf{Baseline Pipeline} \\
+        \textbf{Parameter} & \textbf{Nilai} \\
         \hline
-        Augmentasi Data              & Ya (lengkap)         & Tidak \\
-        Strategi Fine-Tuning         & Two-Stage            & Full Fine-Tuning \\
-        Stage 1 Epochs               & 5                    & -- \\
-        Stage 2 / Total Epochs (maks.) & 45                 & 50 \\
-        Early Stopping Patience      & 5 epoch              & 5 epoch \\
-        LR Stage 1 (EfficientNetV2, ConvNeXt, Swin) & $5 \times 10^{-4}$ & -- \\
-        LR Stage 1 (ViT)             & $1 \times 10^{-3}$  & -- \\
-        LR Stage 2 Head / LR Uniform & $5 \times 10^{-5}$  & $5 \times 10^{-5}$ \\
-        LR Stage 2 Backbone          & $5 \times 10^{-6}$  & -- \\
-        Optimizer                    & AdamW                & AdamW \\
-        Weight Decay                 & 0.01                 & 0.01 \\
-        LR Schedule                  & Cosine Annealing     & Cosine Annealing \\
-        Loss Function                & Cross-Entropy        & Cross-Entropy \\
-        Label Smoothing              & 0.1                  & 0.1 \\
-        Gradient Clipping            & Max norm 1.0         & Max norm 1.0 \\
-        Mixed Precision              & AMP                  & AMP \\
-        Random Seed                  & 42                   & 42 \\
+        Strategi Fine-Tuning             & Two-Stage \\
+        Stage 1 Epochs                   & 10 \\
+        Stage 2 Epochs (maks.)           & 40 \\
+        Early Stopping Patience          & 5 epoch \\
+        LR Stage 1 (EfficientNetV2-M, ConvNeXt-Base, Swin-Small) & $5 \times 10^{-4}$ \\
+        LR Stage 1 (ViT-B/16)           & $1 \times 10^{-3}$ \\
+        LR Stage 2 Head                  & $5 \times 10^{-5}$ \\
+        LR Stage 2 Backbone (EfficientNetV2-M, ConvNeXt-Base, ViT-B/16) & $1 \times 10^{-6}$ \\
+        LR Stage 2 Backbone (Swin-Small) & $5 \times 10^{-7}$ \\
+        LR Uniform (\textit{wo\_twostage}) & $5 \times 10^{-5}$ \\
+        Optimizer                        & AdamW \\
+        Weight Decay                     & 0.01 \\
+        LR Schedule                      & Cosine Annealing \\
+        Label Smoothing                  & 0.1 \\
+        Loss Task 1                      & Standard Cross-Entropy \\
+        Loss Task 2 Stage 1              & Focal Loss ($\gamma=2.0$) \\
+        Loss Task 2 Stage 2              & Focal Loss ($\gamma=1.0$) \\
+        Loss Task 3                      & Weighted Cross-Entropy \\
+        MixUp Task 3 (pelatihan saja)    & $\alpha=0.4$ \\
+        Gradient Clipping                & Max norm 1.0 \\
+        Mixed Precision                  & AMP \\
+        Random Seed                      & 42 \\
         \hline
     \end{tabular}}
 \end{table}
 
-Pelatihan dilakukan secara terpisah untuk masing-masing kombinasi model,
-task, dan kondisi \textit{pipeline}, sehingga total terdapat 24 sesi
-pelatihan: 12 sesi untuk \textit{proposed pipeline} (4 model $\times$
-3 task) dan 12 sesi untuk \textit{baseline pipeline} (4 model $\times$
-3 task). Model terbaik pada setiap sesi ditentukan berdasarkan akurasi
-validasi tertinggi dan disimpan sebagai \textit{checkpoint} untuk
-evaluasi. \par
+Total terdapat 52 sesi pelatihan karena empat variant hanya
+dijalankan pada task yang relevan: \textit{wo\_focal} dan
+\textit{wo\_merge} hanya pada Task 2 (4 sesi masing-masing), serta
+\textit{wo\_weightedce} dan \textit{wo\_mixup} hanya pada Task 3
+(4 sesi masing-masing), sedangkan tiga variant lainnya
+(\textit{full\_proposed}, \textit{wo\_twostage}, dan
+\textit{wo\_augmentation}) dijalankan pada ketiga task (12 sesi
+masing-masing). Model terbaik per sesi ditentukan berdasarkan akurasi
+validasi tertinggi. \par
 
 \subsection{Evaluasi Model Tunggal} \label{III.Langkah6}
 Setiap model dievaluasi pada \textit{test set} menggunakan
-\textit{checkpoint} terbaik dari masing-masing sesi pelatihan. Metrik
-yang dihitung meliputi \textit{accuracy}, \textit{macro F1-score},
-\textit{weighted F1-score}, AUC-ROC, serta \textit{per-class F1-score}
-untuk analisis mendalam per kelas. Selain itu, analisis efisiensi
-komputasi (\textit{inference time}, \textit{memory usage}, dan FLOPs)
-dilakukan pada Task 1 sebagai representasi untuk memberikan gambaran
-biaya komputasi masing-masing arsitektur. \par
+\textit{checkpoint} terbaik. Metrik performa yang dihitung meliputi
+\textit{accuracy}, \textit{macro F1-score}, \textit{weighted F1-score},
+AUC-ROC, dan \textit{per-class F1-score}. Sebagai analisis pendukung,
+\textit{training time} per model juga dicatat --- mencakup waktu Stage 1,
+waktu Stage 2 aktual, dan jumlah epoch aktual sebelum \textit{early
+stopping} --- untuk memungkinkan analisis \textit{trade-off} antara
+performa model dengan biaya pelatihan yang dibutuhkan. \par
 
-\subsection{Pembentukan dan Evaluasi Ensemble} \label{III.Langkah7}
-Setelah seluruh model tunggal dievaluasi, probabilitas prediksi dari
-keempat model \textit{proposed pipeline} digabungkan melalui tiga
-strategi \textit{ensemble} yang telah dijelaskan pada
-Subbab~\ref{II.Teori.Ensemble}: \par
+Probabilitas prediksi pada \textit{validation set} dan \textit{test set}
+disimpan untuk seleksi model dan pembentukan \textit{ensemble}. \par
+
+\subsection{Seleksi Model Terbaik dan Pembentukan Ensemble}
+\label{III.Langkah7}
+
+\subsubsection{Cross-Variant Model Selection}
+Sebelum pembentukan \textit{ensemble}, dilakukan seleksi model terbaik
+secara independen per model per task. Pendekatan
+\textit{cross-variant selection} memilih setiap model dari variant yang
+memberikan \textit{macro F1-score} tertinggi pada \textit{test set},
+tanpa membatasi semua model harus berasal dari variant yang sama.
+Dengan demikian, setiap model mendapatkan kondisi pelatihan yang paling
+menguntungkan arsitekturnya. Format seleksi yang akan diisi setelah
+eksperimen disajikan pada Tabel~\ref{table:cross_variant_selection}. \par
+
+\begin{table}[h]
+    \centering
+    \caption{Format tabel seleksi model terbaik \textit{cross-variant}
+    (diisi setelah eksperimen)}
+    \label{table:cross_variant_selection}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{|l|l|l|c|}
+        \hline
+        \textbf{Task} & \textbf{Model} &
+        \textbf{Variant Terpilih} & \textbf{Macro F1} \\
+        \hline
+        Task 1 & EfficientNetV2-M & (diisi setelah eksperimen) & -- \\
+        Task 1 & ConvNeXt-Base    & (diisi setelah eksperimen) & -- \\
+        Task 1 & Swin-Small       & (diisi setelah eksperimen) & -- \\
+        Task 1 & ViT-B/16         & (diisi setelah eksperimen) & -- \\
+        \hline
+        Task 2 & EfficientNetV2-M & (diisi setelah eksperimen) & -- \\
+        Task 2 & ConvNeXt-Base    & (diisi setelah eksperimen) & -- \\
+        Task 2 & Swin-Small       & (diisi setelah eksperimen) & -- \\
+        Task 2 & ViT-B/16         & (diisi setelah eksperimen) & -- \\
+        \hline
+        Task 3 & EfficientNetV2-M & (diisi setelah eksperimen) & -- \\
+        Task 3 & ConvNeXt-Base    & (diisi setelah eksperimen) & -- \\
+        Task 3 & Swin-Small       & (diisi setelah eksperimen) & -- \\
+        Task 3 & ViT-B/16         & (diisi setelah eksperimen) & -- \\
+        \hline
+    \end{tabular}}
+\end{table}
+
+\subsubsection{Pembentukan dan Evaluasi Ensemble}
+Probabilitas prediksi dari keempat model terpilih digabungkan melalui
+delapan konfigurasi \textit{ensemble} (E1--E8) yang dibagi ke dalam dua
+kelompok. \par
+
+\textbf{Kelompok strategi penggabungan (E1--E4)} mengevaluasi metode
+kombinasi berbeda menggunakan keempat model:
 
 \begin{enumerate}[noitemsep]
-    \item \textbf{Simple Averaging} — rata-rata probabilitas dari keempat
-    model dengan bobot yang sama.
-    \item \textbf{Weighted Voting} — rata-rata probabilitas dengan bobot
-    proporsional terhadap akurasi validasi masing-masing model.
-    \item \textbf{Stacking (Logistic Regression)} — \textit{meta-learner}
-    dilatih pada vektor probabilitas gabungan ($4 \times C$ fitur) dari
-    \textit{validation set}, kemudian dievaluasi pada \textit{test set}.
+    \item \textbf{E1 Simple Averaging} — rata-rata probabilitas keempat
+    model dengan bobot sama (Persamaan~\ref{eq:simple_avg}).
+    \item \textbf{E2 Weighted Voting} — rata-rata probabilitas berbobot
+    akurasi validasi masing-masing model
+    (Persamaan~\ref{eq:weighted_vote}).
+    \item \textbf{E3 Stacking (Logistic Regression)} —
+    \textit{meta-learner} dilatih pada vektor probabilitas gabungan
+    ($4 \times C$ fitur) dari \textit{validation set}, dievaluasi pada
+    \textit{test set}.
+    \item \textbf{E4 Temperature Scaling} — setiap model dikalibrasi
+    dengan $T^*$ optimal dari minimasi NLL pada \textit{validation set}
+    (Persamaan~\ref{eq:temperature_nll}), kemudian digabungkan dengan
+    \textit{simple averaging}.
 \end{enumerate}
 
-Ketiga strategi dievaluasi dengan metrik yang sama dengan evaluasi model
-tunggal untuk memungkinkan perbandingan langsung. \par
+\textbf{Kelompok komposisi arsitektur (E5--E8)} mengevaluasi pengaruh
+komposisi model menggunakan \textit{simple averaging} pada subset:
 
-\subsection{Analisis Komparatif dan Ablation Study} \label{III.Langkah8}
-Tahap akhir adalah analisis menyeluruh terhadap seluruh hasil eksperimen
-yang terdiri dari dua bagian utama. \par
+\begin{enumerate}[noitemsep]
+    \setcounter{enumi}{4}
+    \item \textbf{E5 Homogen CNN} — EfficientNetV2-M + ConvNeXt-Base.
+    \item \textbf{E6 Homogen Transformer} — Swin-Small + ViT-B/16.
+    \item \textbf{E7 Heterogen Similar} — ConvNeXt-Base + Swin-Small.
+    \item \textbf{E8 Heterogen Contrast} — EfficientNetV2-M + ViT-B/16
+    (perbedaan \textit{inductive bias} paling besar).
+\end{enumerate}
 
-\textbf{Analisis komparatif} mencakup perbandingan performa lintas
-arsitektur, lintas task, dan lintas konfigurasi \textit{ensemble},
-termasuk analisis \textit{per-class F1-score} dan \textit{confusion
-matrix} untuk memahami pola kegagalan model pada masing-masing kelas.
-Analisis komparatif juga mencakup perbandingan \textit{ensemble}
-heterogen (CNN + \textit{Transformer}) terhadap \textit{ensemble}
-homogen (CNN saja atau \textit{Transformer} saja), serta analisis
-pengaruh jumlah model dalam \textit{ensemble}. \par
+Konfigurasi E5--E8 menggunakan probabilitas yang sudah tersedia dari
+model tunggal sehingga tidak memerlukan sesi pelatihan tambahan. \par
 
-\textbf{Ablation study} membandingkan \textit{proposed pipeline}
-(two-stage fine-tuning + augmentasi) terhadap \textit{baseline pipeline}
-(full fine-tuning tanpa augmentasi) pada level model tunggal dan
-\textit{ensemble} secara bersamaan, untuk membuktikan kontribusi nyata
-dari setiap komponen metodologi yang diusulkan. \par
+\subsection{Ablation Study} \label{III.Langkah8}
+\textit{Ablation study} menggunakan pendekatan \textit{component-wise
+ablation} — menonaktifkan satu komponen pada satu waktu — untuk mengukur
+kontribusi individual setiap komponen metodologi. Terdapat tujuh variant,
+dimana \textit{full\_proposed} berfungsi sebagai referensi dan enam
+variant lainnya masing-masing menonaktifkan satu komponen: \par
+
+\begin{enumerate}[noitemsep]
+    \item \textbf{\textit{full\_proposed}} — Referensi utama: semua
+    komponen aktif termasuk augmentasi domain-spesifik.
+    \item \textbf{\textit{wo\_twostage}} — Tanpa \textit{two-stage}:
+    seluruh lapisan dilatih sekaligus dengan LR seragam
+    $5 \times 10^{-5}$. Mengukur kontribusi pelatihan bertahap dalam
+    mencegah \textit{catastrophic forgetting}
+    \cite{kirkpatrick2017catastrophic}.
+    \item \textbf{\textit{wo\_focal}} — Tanpa \textit{Focal Loss} Task 2:
+    diganti \textit{Standard CE}. Mengukur kontribusi \textit{Focal Loss}
+    untuk imbalance ekstrem \cite{lin2017focal, singh2023bbfl}.
+    \item \textbf{\textit{wo\_merge}} — Tanpa penggabungan kelas Task 2:
+    menggunakan 8 kelas asli. Mengukur kontribusi penggabungan semantik
+    kelas minoritas \cite{ofli2020analysis, zhou2018superclass}.
+    \item \textbf{\textit{wo\_weightedce}} — Tanpa \textit{Weighted CE}
+    Task 3: diganti \textit{Standard CE}. Mengukur kontribusi pembobotan
+    \textit{loss} untuk imbalance moderat \cite{polat2025cdwce}.
+    \item \textbf{\textit{wo\_mixup}} — Tanpa \textit{MixUp} Task 3.
+    Mengukur kontribusi \textit{smooth decision boundary} untuk tugas
+    dengan ambiguitas visual antar kelas \cite{zhang2018mixup}.
+    \item \textbf{\textit{wo\_augmentation}} — Tanpa augmentasi
+    domain-spesifik pada seluruh task. Mengukur kontribusi augmentasi
+    berbasis karakteristik citra bencana terhadap performa akhir
+    \cite{shorten2019survey}.
+\end{enumerate}
+
+\begin{table}[h]
+    \centering
+    \caption{Konfigurasi komponen setiap variant \textit{ablation study}}
+    \label{table:ablation_config}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{|l|c|c|c|c|c|c|}
+        \hline
+        \textbf{Variant} &
+        \textbf{Two-Stage} &
+        \textbf{Focal Loss} &
+        \textbf{Merge Kelas} &
+        \textbf{Weighted CE} &
+        \textbf{MixUp} &
+        \textbf{Augmentasi} \\
+        \hline
+        \textit{full\_proposed}    & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark \\
+        \textit{wo\_twostage}      & --         & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark \\
+        \textit{wo\_focal}         & \checkmark & --         & \checkmark & \checkmark & \checkmark & \checkmark \\
+        \textit{wo\_merge}         & \checkmark & \checkmark & --         & \checkmark & \checkmark & \checkmark \\
+        \textit{wo\_weightedce}    & \checkmark & \checkmark & \checkmark & --         & \checkmark & \checkmark \\
+        \textit{wo\_mixup}         & \checkmark & \checkmark & \checkmark & \checkmark & --         & \checkmark \\
+        \textit{wo\_augmentation}  & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & --         \\
+        \hline
+    \end{tabular}}
+    \begin{flushleft}
+        \footnotesize{\checkmark = aktif, -- = tidak aktif.
+        \textit{Focal Loss} dan \textit{Merge Kelas} hanya mempengaruhi
+        Task 2. \textit{Weighted CE} dan \textit{MixUp} hanya
+        mempengaruhi Task 3.}
+    \end{flushleft}
+\end{table}
+
+Perbandingan dilakukan pada level model tunggal dan \textit{ensemble} E1
+secara bersamaan, sehingga kontribusi setiap komponen dapat diukur baik
+pada kondisi model individual maupun \textit{ensemble}. \par
 
 
 \section{Alat dan Bahan Tugas Akhir} \label{III.Alat dan Bahan}
@@ -289,8 +475,8 @@ dari setiap komponen metodologi yang diusulkan. \par
     \item Pustaka \texttt{timm} (\textit{PyTorch Image Models}) untuk
     inisialisasi model dengan bobot \textit{pre-trained}.
     \item Pustaka \texttt{scikit-learn} untuk implementasi \textit{Logistic
-    Regression} sebagai \textit{meta-learner} pada \textit{stacking
-    ensemble}.
+    Regression} sebagai \textit{meta-learner} dan \texttt{scipy} untuk
+    optimasi parameter temperatur pada \textit{temperature scaling}.
     \item Pustaka \texttt{numpy}, \texttt{pandas}, \texttt{matplotlib},
     dan \texttt{seaborn} untuk analisis data dan visualisasi hasil.
     \item Code editor Microsoft Visual Studio Code.
@@ -310,46 +496,41 @@ dari setiap komponen metodologi yang diusulkan. \par
 
 \section{Metode Pengembangan} \label{III.Metode}
 Penelitian ini mengikuti pendekatan \textit{experimental machine learning
-pipeline} yang terdiri dari empat fase utama yang saling berkaitan. \par
+pipeline} yang terdiri dari empat fase utama. \par
 
-\textbf{Fase 1 -- Persiapan Data:} Meliputi pengunduhan dataset,
-verifikasi integritas \textit{split} resmi, dan implementasi
-\textit{pipeline} pra-pemrosesan yang berbeda untuk \textit{proposed
-pipeline} dan \textit{baseline pipeline}. \par
+\textbf{Fase 1 -- Persiapan Data:} Pengunduhan dataset, verifikasi
+integritas \textit{split} resmi, implementasi penggabungan kelas Task 2,
+dan implementasi \textit{pipeline} transformasi citra yang kondisional
+per variant. \par
 
-\textbf{Fase 2 -- Pelatihan dan Seleksi Model:} Implementasi 24 sesi
-pelatihan yang terdiri dari 12 sesi \textit{proposed pipeline} dan 12
-sesi \textit{baseline pipeline} pada keempat arsitektur untuk ketiga
-task. Seleksi model terbaik berdasarkan akurasi validasi dengan
-\textit{checkpoint} disimpan untuk evaluasi. \par
+\textbf{Fase 2 -- Pelatihan dan Seleksi Model:} Implementasi 52 sesi
+pelatihan dengan pencatatan waktu training per stage. Seleksi model
+terbaik menggunakan pendekatan \textit{cross-variant selection}
+berdasarkan \textit{macro F1-score} tertinggi per model per task. \par
 
 \textbf{Fase 3 -- Evaluasi dan Ensemble:} Evaluasi komprehensif model
-tunggal pada \textit{test set}, diikuti pembentukan dan evaluasi tiga
-konfigurasi \textit{ensemble} dari hasil \textit{proposed pipeline}.
-Probabilitas prediksi dari seluruh model disimpan untuk digunakan pada
-\textit{stacking} dan analisis \textit{ablation study}. \par
+tunggal pada \textit{test set} untuk seluruh variant, diikuti
+pembentukan dan evaluasi delapan konfigurasi \textit{ensemble} (E1--E8)
+menggunakan probabilitas dari model-model terpilih. \par
 
-\textbf{Fase 4 -- Analisis:} Analisis komparatif lintas model, lintas
-task, dan lintas konfigurasi \textit{ensemble}, disertai \textit{ablation
-study} perbandingan \textit{proposed} vs \textit{baseline pipeline},
-analisis \textit{per-class} dan \textit{confusion matrix}, serta analisis
-efisiensi komputasi. \par
+\textbf{Fase 4 -- Analisis:} Analisis komparatif lintas model, task, dan
+konfigurasi \textit{ensemble}. \textit{Ablation study}
+komponen-per-komponen mengukur kontribusi individual setiap komponen.
+Analisis \textit{trade-off} performa vs waktu training menggunakan
+\textit{scatter plot} memberikan gambaran biaya komputasi
+masing-masing konfigurasi. \par
 
 
 \section{Ilustrasi Perhitungan Metode} \label{III.Ilustrasi}
-Bagian ini memberikan ilustrasi perhitungan manual untuk tiga strategi
-\textit{ensemble} yang digunakan dalam penelitian. Seluruh rumus yang
-digunakan merujuk pada persamaan yang telah dijelaskan pada
-Bab~\ref{Bab II}. \par
-
-Misalkan terdapat empat model yang telah dilatih pada Task 1 (klasifikasi
-biner: \textit{Informative} vs \textit{Not Informative}) dengan akurasi
-validasi dan probabilitas prediksi untuk satu sampel citra $x$ sebagai
-berikut: \par
+Bagian ini memberikan ilustrasi perhitungan manual untuk empat strategi
+\textit{ensemble} utama (E1--E4). Misalkan terdapat empat model yang
+telah dilatih pada Task 1 dengan probabilitas prediksi untuk satu sampel
+citra $x$ sebagai berikut: \par
 
 \begin{table}[h]
     \centering
-    \caption{Contoh probabilitas prediksi dan akurasi validasi keempat model}
+    \caption{Contoh probabilitas prediksi dan akurasi validasi keempat
+    model}
     \label{table:ilustrasi_input}
     \begin{tabular}{|l|c|c|c|}
         \hline
@@ -368,188 +549,165 @@ berikut: \par
     \end{tabular}
 \end{table}
 
-\subsection{Ilustrasi Simple Averaging}
-Berdasarkan Persamaan~\ref{eq:simple_avg}, probabilitas \textit{ensemble
-simple averaging} untuk kelas \textit{Informative} dihitung sebagai
-rata-rata sederhana dari keempat model: \par
+\subsection{Ilustrasi E1: Simple Averaging}
+Berdasarkan Persamaan~\ref{eq:simple_avg}:
 
 \begin{equation}
     P_{\text{avg}} = \frac{0.82 + 0.75 + 0.79 + 0.91}{4}
     = \frac{3.27}{4} = 0.8175
 \end{equation}
 
-Karena $P_{\text{avg}} = 0.8175 > 0.5$, sampel diklasifikasikan sebagai
+Karena $0.8175 > 0.5$, sampel diklasifikasikan sebagai
 \textit{Informative}. \par
 
-\subsection{Ilustrasi Weighted Voting}
-Berdasarkan Persamaan~\ref{eq:weighted_vote}, probabilitas \textit{ensemble
-weighted voting} untuk kelas \textit{Informative} dihitung sebagai
-rata-rata tertimbang berdasarkan akurasi validasi: \par
+\subsection{Ilustrasi E2: Weighted Voting}
+Berdasarkan Persamaan~\ref{eq:weighted_vote}:
 
 \begin{equation}
     P_{\text{weighted}} =
     \frac{(0.88 \times 0.82) + (0.87 \times 0.75)
     + (0.86 \times 0.79) + (0.89 \times 0.91)}
-    {0.88 + 0.87 + 0.86 + 0.89}
-\end{equation}
-
-\begin{equation}
-    P_{\text{weighted}} =
-    \frac{0.7216 + 0.6525 + 0.6794 + 0.8099}{3.50}
+    {3.50}
     = \frac{2.8634}{3.50} \approx 0.818
 \end{equation}
 
-Karena $P_{\text{weighted}} = 0.818 > 0.5$, sampel diklasifikasikan
-sebagai \textit{Informative}. Perhatikan bahwa hasil \textit{weighted
-voting} (0.818) berbeda tipis dari \textit{simple averaging} (0.8175)
-karena akurasi validasi keempat model yang relatif setara. \par
+Hasil berbeda tipis dari \textit{simple averaging} (0.8175) karena
+akurasi validasi keempat model yang relatif setara. \par
 
-\subsection{Ilustrasi Stacking Ensemble}
-Pada \textit{stacking}, vektor fitur masukan \textit{meta-learner}
-dibentuk dengan \textit{concatenate} seluruh probabilitas dari keempat
-model. Untuk Task 1 dengan $C = 2$ kelas dan $M = 4$ model, dihasilkan
-vektor berdimensi $M \times C = 8$: \par
+\subsection{Ilustrasi E3: Stacking Ensemble}
+Vektor fitur \textit{meta-learner} dibentuk dari \textit{concatenate}
+seluruh probabilitas. Untuk Task 1 ($C=2$, $M=4$), dimensi vektor
+$4 \times 2 = 8$:
 
 \begin{equation}
     \mathbf{x}_{\text{stack}} =
     [0.18,\ 0.82,\ 0.25,\ 0.75,\ 0.21,\ 0.79,\ 0.09,\ 0.91]
 \end{equation}
 
-Vektor ini distandarisasi menggunakan \textit{StandardScaler} sebelum
-dimasukkan ke \textit{Logistic Regression} yang telah dilatih pada
-\textit{validation set} untuk menghasilkan prediksi akhir. Untuk Task 2
-dengan $C = 8$ kelas, dimensi vektor menjadi $4 \times 8 = 32$, dan
-untuk Task 3 dengan $C = 3$ kelas menjadi $4 \times 3 = 12$. \par
+Vektor distandarisasi lalu dimasukkan ke \textit{Logistic Regression}
+yang dilatih pada \textit{validation set}. Untuk Task 2 ($C=5$) dimensi
+menjadi $4 \times 5 = 20$; untuk Task 3 ($C=3$) menjadi
+$4 \times 3 = 12$. \par
+
+\subsection{Ilustrasi E4: Temperature Scaling}
+Misalkan \textit{logit} EfficientNetV2-M adalah $\mathbf{z} =
+[0.90, 3.68]$. Dengan $T^* = 1.2$ dari minimasi NLL pada
+\textit{validation set} (Persamaan~\ref{eq:temperature_nll}):
+
+\begin{equation}
+    \hat{p}_{\text{Inf.}} =
+    \frac{e^{3.68/1.2}}{e^{0.90/1.2} + e^{3.68/1.2}}
+    = \frac{e^{3.07}}{e^{0.75} + e^{3.07}}
+    = \frac{21.54}{2.117 + 21.54} \approx 0.91
+\end{equation}
+
+Sebelum kalibrasi probabilitas \textit{Informative} = 0.91 (terlalu
+tinggi), setelah kalibrasi dengan $T^*=1.2$ distribusi menjadi lebih
+datar. Proses yang sama dilakukan untuk ketiga model lainnya, kemudian
+probabilitas yang sudah dikalibrasi digabungkan dengan \textit{simple
+averaging}. \par
 
 
 \section{Rancangan Pengujian} \label{III.Rancang_Uji}
-Pengujian dirancang untuk menjawab seluruh rumusan masalah penelitian
-secara sistematis melalui tiga skenario utama. \par
 
 \subsection{Skenario Pengujian Performa Model Tunggal dan Ensemble}
 Skenario ini membandingkan performa seluruh konfigurasi model tunggal
-dan \textit{ensemble} dari \textit{proposed pipeline} pada ketiga task.
-Pengujian dilakukan pada \textit{test set} resmi \textit{CrisisMMD}
-menggunakan \textit{checkpoint} terbaik dari masing-masing model.
-Metrik yang dievaluasi adalah \textit{accuracy}, \textit{macro
-F1-score}, \textit{weighted F1-score}, AUC-ROC, dan
-\textit{per-class F1-score}. \par
+dan \textit{ensemble} menggunakan hasil dari \textit{cross-variant
+selection} pada ketiga task. \par
 
 \begin{table}[h]
     \centering
-    \caption{Skenario pengujian performa model tunggal dan \textit{ensemble}}
+    \caption{Skenario pengujian performa model tunggal dan
+    \textit{ensemble}}
     \label{table:skenario_uji}
     \begin{tabular}{|l|l|l|}
         \hline
         \textbf{Skenario} & \textbf{Konfigurasi} & \textbf{Task} \\
         \hline
-        S1 & EfficientNetV2-M (tunggal)      & Task 1, 2, 3 \\
-        S2 & ConvNeXt-Base (tunggal)         & Task 1, 2, 3 \\
-        S3 & Swin-Small (tunggal)            & Task 1, 2, 3 \\
-        S4 & ViT-B/16 (tunggal)              & Task 1, 2, 3 \\
-        S5 & Ensemble Simple Averaging       & Task 1, 2, 3 \\
-        S6 & Ensemble Weighted Voting        & Task 1, 2, 3 \\
-        S7 & Stacking (Logistic Regression)  & Task 1, 2, 3 \\
-        \hline
-    \end{tabular}
-\end{table}
-
-\subsection{Skenario Pengujian Komposisi Ensemble}
-Skenario ini menganalisis pengaruh komposisi dan jumlah model dalam
-\textit{ensemble} menggunakan strategi \textit{simple averaging}.
-Seluruh probabilitas prediksi yang dibutuhkan sudah tersedia dari
-skenario S1--S4 sehingga tidak memerlukan sesi pelatihan tambahan. \par
-
-\begin{table}[h]
-    \centering
-    \caption{Skenario pengujian komposisi \textit{ensemble}}
-    \label{table:skenario_komposisi}
-    \begin{tabular}{|l|l|l|}
-        \hline
-        \textbf{Skenario} & \textbf{Konfigurasi} & \textbf{Task} \\
-        \hline
-        C1 & Ensemble homogen CNN
-              (EfficientNetV2-M + ConvNeXt-Base)         & Task 1, 2, 3 \\
-        C2 & Ensemble homogen Transformer
-              (Swin-Small + ViT-B/16)                    & Task 1, 2, 3 \\
-        C3 & Ensemble heterogen 2 model
-              (EfficientNetV2-M + ViT-B/16)              & Task 1, 2, 3 \\
-        C4 & Ensemble heterogen 3 model
-              (EfficientNetV2-M + Swin-Small + ViT-B/16) & Task 1, 2, 3 \\
-        C5 & Ensemble heterogen 4 model
-              (semua model -- identik dengan S5)          & Task 1, 2, 3 \\
+        S1  & EfficientNetV2-M (tunggal)              & Task 1, 2, 3 \\
+        S2  & ConvNeXt-Base (tunggal)                 & Task 1, 2, 3 \\
+        S3  & Swin-Small (tunggal)                    & Task 1, 2, 3 \\
+        S4  & ViT-B/16 (tunggal)                      & Task 1, 2, 3 \\
+        S5  & E1: Simple Averaging (4 model)          & Task 1, 2, 3 \\
+        S6  & E2: Weighted Voting                     & Task 1, 2, 3 \\
+        S7  & E3: Stacking (Logistic Regression)      & Task 1, 2, 3 \\
+        S8  & E4: Temperature Scaling                 & Task 1, 2, 3 \\
+        S9  & E5: Homogen CNN                         & Task 1, 2, 3 \\
+        S10 & E6: Homogen Transformer                 & Task 1, 2, 3 \\
+        S11 & E7: Heterogen Similar (ConvNeXt + Swin) & Task 1, 2, 3 \\
+        S12 & E8: Heterogen Contrast (EffNet + ViT)   & Task 1, 2, 3 \\
         \hline
     \end{tabular}
 \end{table}
 
 \subsection{Skenario Ablation Study}
-Skenario ini membandingkan \textit{proposed pipeline} (two-stage
-fine-tuning + augmentasi) terhadap \textit{baseline pipeline}
-(full fine-tuning tanpa augmentasi) pada level model tunggal dan
-\textit{ensemble} secara bersamaan. Tujuannya adalah membuktikan
-kontribusi nyata dari komponen metodologi yang diusulkan terhadap
-performa akhir sistem. \par
+Skenario ini mengukur kontribusi individual setiap komponen metodologi
+dengan membandingkan seluruh variant secara komponen-per-komponen pada
+level model tunggal dan \textit{ensemble} E1. \par
 
 \begin{table}[h]
     \centering
-    \caption{Skenario \textit{ablation study}}
+    \caption{Skenario \textit{ablation study} komponen-per-komponen}
     \label{table:skenario_ablation}
+    \resizebox{\textwidth}{!}{%
     \begin{tabular}{|l|l|l|l|}
         \hline
-        \textbf{Skenario} & \textbf{Pipeline} &
-        \textbf{Konfigurasi} & \textbf{Task} \\
+        \textbf{Skenario} & \textbf{Variant} &
+        \textbf{Komponen Dinonaktifkan} & \textbf{Task Relevan} \\
         \hline
-        A1  & Proposed  & EfficientNetV2-M (tunggal)    & Task 1, 2, 3 \\
-        A2  & Proposed  & ConvNeXt-Base (tunggal)       & Task 1, 2, 3 \\
-        A3  & Proposed  & Swin-Small (tunggal)          & Task 1, 2, 3 \\
-        A4  & Proposed  & ViT-B/16 (tunggal)            & Task 1, 2, 3 \\
-        A5  & Proposed  & Ensemble Simple Averaging     & Task 1, 2, 3 \\
+        A1 & \textit{full\_proposed}  & -- (referensi)          & Task 1, 2, 3 \\
+        A2 & \textit{wo\_twostage}    & Two-Stage Fine-Tuning   & Task 1, 2, 3 \\
+        A3 & \textit{wo\_focal}       & Focal Loss              & Task 2 \\
+        A4 & \textit{wo\_merge}       & Penggabungan Kelas      & Task 2 \\
+        A5 & \textit{wo\_weightedce}  & Weighted Cross-Entropy  & Task 3 \\
+        A6 & \textit{wo\_mixup}       & MixUp                   & Task 3 \\
+        A7 & \textit{wo\_augmentation} & Augmentasi              & Task 1, 2, 3 \\
         \hline
-        A6  & Baseline  & EfficientNetV2-M (tunggal)    & Task 1, 2, 3 \\
-        A7  & Baseline  & ConvNeXt-Base (tunggal)       & Task 1, 2, 3 \\
-        A8  & Baseline  & Swin-Small (tunggal)          & Task 1, 2, 3 \\
-        A9  & Baseline  & ViT-B/16 (tunggal)            & Task 1, 2, 3 \\
-        A10 & Baseline  & Ensemble Simple Averaging     & Task 1, 2, 3 \\
-        \hline
-    \end{tabular}
+    \end{tabular}}
     \begin{flushleft}
-    \footnotesize{Keterangan: A1--A5 identik dengan S1--S5, dicantumkan
-    ulang untuk memudahkan perbandingan langsung dengan \textit{baseline}.}
+        \footnotesize{Setiap skenario meliputi evaluasi empat model
+        tunggal dan satu konfigurasi \textit{ensemble} E1. A2 dan A7
+        relevan untuk seluruh task; A3 dan A4 spesifik Task 2; A5 dan
+        A6 spesifik Task 3.}
     \end{flushleft}
 \end{table}
 
 \subsection{Hipotesis Hasil}
-Berdasarkan tinjauan pustaka dan karakteristik dataset, hipotesis hasil
-yang diharapkan dari penelitian ini adalah: \par
+Berdasarkan tinjauan pustaka dan karakteristik dataset:
 
 \begin{enumerate}[noitemsep]
-    \item \textit{Ensemble heterogen} yang menggabungkan CNN dan
-    \textit{Transformer} akan menghasilkan performa yang lebih baik
-    dibandingkan model tunggal terbaik manapun, karena keragaman
-    paradigma arsitektur menghasilkan keragaman prediksi yang saling
-    melengkapi.
-    \item \textit{Ensemble} heterogen (CNN + \textit{Transformer}) akan
-    mengungguli \textit{ensemble} homogen (CNN saja atau
-    \textit{Transformer} saja) karena perbedaan \textit{inductive bias}
-    antar paradigma menghasilkan kesalahan prediksi yang tidak
-    berkorelasi.
-    \item Performa keempat arsitektur tidak akan berbeda secara drastis
-    pada Task 1, namun perbedaan yang lebih signifikan diperkirakan
-    muncul pada Task 2 dan Task 3 akibat ketidakseimbangan kelas yang
-    lebih ekstrem, khususnya pada kelas-kelas minoritas.
-    \item \textit{Proposed pipeline} (two-stage + augmentasi) akan
-    menghasilkan performa yang lebih tinggi dibandingkan
-    \textit{baseline pipeline} baik pada level model tunggal maupun
-    \textit{ensemble}, dengan selisih yang lebih besar pada model
-    berbasis \textit{Transformer} karena arsitektur tersebut lebih
-    rentan terhadap \textit{catastrophic forgetting}.
-    \item \textit{EfficientNetV2-M} akan menunjukkan efisiensi komputasi
-    terbaik dengan \textit{inference time} dan penggunaan memori terendah
-    di antara keempat model.
+    \item \textit{Ensemble} E8 (\textit{Heterogen Contrast}) akan
+    mengungguli \textit{ensemble} homogen (E5 dan E6) karena perbedaan
+    \textit{inductive bias} yang lebih besar menghasilkan kesalahan
+    prediksi yang tidak berkorelasi.
+    \item \textit{Ensemble} empat model (E1--E4) akan mengungguli model
+    tunggal terbaik karena keragaman prediksi mengurangi varians
+    kesalahan.
+    \item Variant \textit{wo\_twostage} akan memberikan penurunan
+    performa terbesar pada ViT-B/16 dan Swin-Small yang lebih rentan
+    terhadap \textit{catastrophic forgetting}.
+    \item Variant \textit{wo\_focal} dan \textit{wo\_merge} akan
+    memberikan penurunan performa signifikan spesifik pada Task 2,
+    terutama pada \textit{macro F1-score} yang sensitif terhadap
+    performa kelas minoritas.
+    \item Variant \textit{wo\_mixup} dan \textit{wo\_weightedce} akan
+    menunjukkan penurunan \textit{macro F1-score} yang lebih besar
+    dibanding \textit{accuracy} pada Task 3, karena keduanya dirancang
+    untuk meningkatkan performa kelas minoritas.
+    \item \textit{EfficientNetV2-M} akan menunjukkan efisiensi
+    komputasi terbaik dengan \textit{training time} terendah di antara
+    keempat model karena memiliki kompleksitas arsitektur yang lebih
+    ringan.
+    \item Variant \textit{wo\_augmentation} akan menunjukkan penurunan
+    performa dibandingkan \textit{full\_proposed}, namun selisihnya
+    diperkirakan tidak terlalu besar mengingat ukuran \textit{CrisisMMD}
+    yang sedang kemungkinan sudah memberikan generalisasi yang memadai
+    bahkan tanpa augmentasi tambahan.
 \end{enumerate}
 
 \section{Jadwal Penelitian} \label{III.Jadwal}
-Penelitian ini dilaksanakan selama 6 bulan dengan jadwal sebagai berikut: \par
+Penelitian ini dilaksanakan selama 6 bulan dengan jadwal sebagai
+berikut: \par
 
 \begin{table}[h]
     \centering
@@ -566,7 +724,7 @@ Penelitian ini dilaksanakan selama 6 bulan dengan jadwal sebagai berikut: \par
         Persiapan Dataset            & $\times$ & $\times$ & & & & \\
         Pra-pemrosesan Data          & & $\times$ & $\times$ & & & \\
         Implementasi Model           & & $\times$ & $\times$ & & & \\
-        Pelatihan Model              & & & $\times$ & $\times$ & & \\
+        Pelatihan Model (52 sesi)    & & & $\times$ & $\times$ & & \\
         Evaluasi \& Ensemble         & & & & $\times$ & $\times$ & \\
         Ablation Study               & & & & $\times$ & $\times$ & \\
         Analisis \& Pembahasan       & & & & & $\times$ & $\times$ \\
