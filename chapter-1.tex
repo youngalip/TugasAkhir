@@ -103,14 +103,19 @@ mendalam untuk domain klasifikasi informasi krisis. \par
 
 Selain pertanyaan mengenai konfigurasi model mana yang terbaik,
 terdapat kebutuhan untuk memahami faktor-faktor yang berkontribusi
-terhadap performa tersebut. Strategi \textit{fine-tuning} yang
-digunakan dan komposisi model dalam \textit{ensemble} merupakan faktor
-yang dapat mempengaruhi hasil secara signifikan, namun analisis sistematisnya dalam bentuk \textit{ablation study} 
-masih jarang dilakukan pada domain klasifikasi citra bencana.
-Pemahaman mendalam tentang kontribusi masing-masing faktor ini penting
-agar penelitian tidak hanya menghasilkan angka performa tertinggi,
-tetapi juga memberikan wawasan yang dapat direplikasi dan dikembangkan
-lebih lanjut oleh komunitas peneliti. \par
+terhadap performa tersebut. Beberapa aspek metodologis yang perlu
+dievaluasi kontribusinya secara individual meliputi: strategi
+\textit{fine-tuning} dua tahap untuk mencegah \textit{catastrophic
+forgetting}, pemilihan fungsi \textit{loss} yang disesuaikan per tugas
+untuk menangani ketidakseimbangan kelas, penggabungan kelas minoritas
+yang serupa secara semantik, serta teknik augmentasi data yang
+domain-spesifik. Analisis sistematis dalam bentuk \textit{ablation
+study} komponen-per-komponen masih jarang dilakukan pada domain
+klasifikasi citra bencana, padahal pemahaman mendalam tentang kontribusi
+masing-masing komponen ini penting agar penelitian tidak hanya
+menghasilkan angka performa tertinggi, tetapi juga memberikan wawasan
+yang dapat direplikasi dan dikembangkan lebih lanjut oleh komunitas
+peneliti. \par
 
 Berdasarkan uraian di atas, penelitian ini melakukan analisis performa
 secara komprehensif antara \textit{ensemble} heterogen dan model tunggal
@@ -118,12 +123,16 @@ untuk klasifikasi informasi krisis pada \textit{dataset}
 \textit{CrisisMMD}. Empat arsitektur yang mewakili ragam CNN hingga
 \textit{Transformer} (\textit{EfficientNetV2-M}, \textit{ConvNeXt-Base},
 \textit{Swin-Small}, dan ViT-B/16) dievaluasi secara individual maupun
-dalam berbagai konfigurasi \textit{ensemble} pada ketiga tugas
-klasifikasi \textit{CrisisMMD}. Penelitian ini juga melakukan
-\textit{ablation study} untuk menganalisis faktor-faktor yang
-mempengaruhi performa, sehingga memberikan kontribusi yang tidak hanya
-berupa hasil komparasi, tetapi juga pemahaman yang lebih dalam tentang
-perilaku \textit{ensemble} heterogen di domain respons bencana. \par
+dalam delapan konfigurasi \textit{ensemble} yang mencakup berbagai
+strategi penggabungan (\textit{simple averaging}, \textit{weighted
+voting}, \textit{stacking}, dan \textit{temperature scaling}) serta
+berbagai komposisi arsitektur (\textit{ensemble} homogen dan heterogen)
+pada ketiga tugas klasifikasi \textit{CrisisMMD}. Penelitian ini juga
+melakukan \textit{ablation study} komponen-per-komponen untuk mengukur
+kontribusi individual setiap komponen metodologi, sehingga memberikan
+kontribusi yang tidak hanya berupa hasil komparasi, tetapi juga
+pemahaman yang lebih dalam tentang perilaku \textit{ensemble} heterogen
+di domain respons bencana. \par
 
 
 \section{Rumusan Masalah} \label{I.RumusanMasalah}
@@ -139,14 +148,20 @@ penelitian ini adalah: \par
 
     \item Apakah \textit{ensemble} heterogen yang menggabungkan model
     CNN dan \textit{Transformer} mampu mengungguli performa model
-    tunggal terbaik maupun \textit{ensemble} homogen, dan strategi
-    \textit{ensemble} mana yang paling efektif untuk klasifikasi
-    informasi krisis?
+    tunggal terbaik maupun \textit{ensemble} homogen, dan dari delapan
+    konfigurasi \textit{ensemble} yang dievaluasi — mencakup
+    \textit{simple averaging}, \textit{weighted voting},
+    \textit{stacking}, \textit{temperature scaling}, serta variasi
+    komposisi arsitektur — konfigurasi mana yang paling efektif untuk
+    klasifikasi informasi krisis?
 
-    \item Faktor-faktor apa saja yang secara signifikan mempengaruhi
-    performa \textit{ensemble} heterogen, dan bagaimana kontribusi
-    masing-masing faktor tersebut terhadap hasil klasifikasi
-    berdasarkan \textit{ablation study}?
+    \item Bagaimana kontribusi individual dari setiap komponen
+    metodologi yang diusulkan — meliputi strategi \textit{two-stage
+    fine-tuning}, \textit{Focal Loss} untuk ketidakseimbangan kelas
+    ekstrem, penggabungan kelas minoritas, \textit{Weighted
+    Cross-Entropy} untuk ketidakseimbangan kelas moderat, \textit{MixUp}
+    untuk ambiguitas batas kelas, dan augmentasi data domain-spesifik
+    — terhadap performa klasifikasi berdasarkan \textit{ablation study}?
 \end{enumerate}
 
 
@@ -161,16 +176,19 @@ ini adalah: \par
     \textit{CrisisMMD} untuk menganalisis performa masing-masing
     arsitektur dalam mewakili ragam CNN hingga \textit{Transformer}.
 
-    \item Mengimplementasikan dan mengevaluasi berbagai konfigurasi
-    \textit{ensemble} heterogen dengan membandingkan performa
-    \textit{ensemble} terhadap model tunggal terbaik dan
-    \textit{ensemble} homogen, menggunakan strategi \textit{simple
-    averaging}, \textit{weighted voting}, dan \textit{stacking}.
+    \item Mengimplementasikan dan mengevaluasi delapan konfigurasi
+    \textit{ensemble} yang mencakup strategi penggabungan (\textit{simple
+    averaging}, \textit{weighted voting}, \textit{stacking}, dan
+    \textit{temperature scaling}) serta variasi komposisi arsitektur
+    (\textit{ensemble} homogen CNN, homogen \textit{Transformer},
+    heterogen \textit{similar}, dan heterogen \textit{contrast}), untuk
+    mengidentifikasi konfigurasi yang paling efektif dalam meningkatkan
+    performa klasifikasi informasi krisis.
 
-    \item Melakukan \textit{ablation study} untuk mengidentifikasi dan
-    mengukur kontribusi faktor-faktor yang mempengaruhi performa
-    \textit{ensemble} heterogen, sehingga menghasilkan pemahaman yang
-    dapat direplikasi dan dikembangkan lebih lanjut.
+    \item Melakukan \textit{ablation study} komponen-per-komponen untuk
+    mengukur kontribusi individual dari setiap komponen metodologi yang
+    diusulkan, sehingga menghasilkan pemahaman yang dapat direplikasi
+    dan dikembangkan lebih lanjut oleh penelitian berikutnya.
 \end{enumerate}
 
 
@@ -188,10 +206,14 @@ sebagai berikut: \par
     \textit{EfficientNetV2-M}, \textit{ConvNeXt-Base},
     \textit{Swin-Small}, dan ViT-B/16.
 
-    \item Strategi \textit{ensemble} yang dievaluasi dibatasi pada
-    \textit{simple averaging}, \textit{weighted voting}, dan
-    \textit{stacking} dengan \textit{Logistic Regression} sebagai
-    \textit{meta-learner}.
+    \item Konfigurasi \textit{ensemble} yang dievaluasi dibatasi pada
+    delapan konfigurasi yang terdiri dari empat strategi penggabungan
+    (\textit{simple averaging}, \textit{weighted voting},
+    \textit{stacking} dengan \textit{Logistic Regression}, dan
+    \textit{temperature scaling}) serta empat variasi komposisi
+    arsitektur (\textit{ensemble} homogen CNN, homogen
+    \textit{Transformer}, heterogen \textit{similar}, dan heterogen
+    \textit{contrast}).
 
     \item \textit{Dataset} yang digunakan adalah \textit{CrisisMMD}
     yang mencakup tujuh jenis bencana alam pada tiga tugas klasifikasi:
@@ -199,13 +221,17 @@ sebagai berikut: \par
     Categories} (Task 2), dan \textit{Damage Severity Assessment}
     (Task 3).
 
-    \item \textit{Ablation study} dilakukan untuk menganalisis
-    faktor-faktor yang mempengaruhi performa model, dengan cakupan
-    aspek yang ditentukan berdasarkan hasil eksperimen awal.
+    \item \textit{Ablation study} dilakukan secara komponen-per-komponen
+    terhadap enam komponen metodologi yang telah ditentukan: strategi
+    \textit{two-stage fine-tuning}, \textit{Focal Loss} pada Task 2,
+    penggabungan kelas minoritas pada Task 2, \textit{Weighted
+    Cross-Entropy} pada Task 3, \textit{MixUp} pada Task 3, dan
+    augmentasi data domain-spesifik.
 
-    \item Analisis efisiensi komputasi (\textit{inference time},
-    \textit{memory usage}, FLOPs) dilakukan sebagai analisis pendukung
-    pada Task 1, bukan sebagai tujuan utama penelitian.
+    \item Analisis efisiensi komputasi dibatasi pada \textit{training
+    time} per model sebagai bagian dari analisis \textit{trade-off}
+    performa terhadap biaya pelatihan, dan dilakukan sebagai analisis
+    pendukung bukan tujuan utama penelitian.
 
     \item Penelitian tidak mencakup penerapan sistem ke lingkungan
     produksi atau pengembangan aplikasi pengguna akhir.
@@ -228,10 +254,10 @@ Manfaat yang diharapkan dari penelitian ini adalah: \par
     menggabungkan paradigma CNN dan \textit{Transformer}, serta
     membandingkannya secara langsung dengan \textit{ensemble} homogen.
 
-    \item Menyediakan hasil \textit{ablation study} yang dapat menjadi
-    referensi bagi penelitian selanjutnya dalam memahami faktor-faktor
-    yang menentukan keberhasilan \textit{ensemble} heterogen di domain
-    respons bencana.
+    \item Menyediakan hasil \textit{ablation study} komponen-per-komponen
+    yang dapat menjadi referensi bagi penelitian selanjutnya dalam
+    memahami kontribusi individual setiap komponen metodologi terhadap
+    performa \textit{ensemble} heterogen di domain respons bencana.
 \end{itemize}
 
 \subsection{Manfaat Praktis}
@@ -267,22 +293,23 @@ dasar teori yang menjadi landasan penelitian, termasuk klasifikasi
 citra untuk respons bencana, \textit{dataset} \textit{CrisisMMD},
 arsitektur \textit{EfficientNetV2}, \textit{ConvNeXt}, \textit{Swin
 Transformer}, \textit{Vision Transformer}, \textit{ensemble learning},
-\textit{transfer learning}, serta metrik evaluasi. \par
+\textit{transfer learning}, augmentasi data, fungsi \textit{loss} untuk
+ketidakseimbangan kelas, serta metrik evaluasi. \par
 
 \subsection*{Bab III}
 Bab ini menjelaskan alur penelitian, penjabaran langkah-langkah
 penelitian, alat dan bahan yang digunakan, metode pengembangan yang
 meliputi preparasi \textit{dataset}, konfigurasi model, strategi
-\textit{ensemble}, rancangan \textit{ablation study}, serta rancangan
-pengujian. \par
+pelatihan, konfigurasi \textit{ensemble}, rancangan \textit{ablation
+study} komponen-per-komponen, serta rancangan pengujian. \par
 
 \subsection*{Bab IV}
 Bab ini menyajikan hasil implementasi dan pengujian yang telah
 dilakukan, analisis performa model tunggal, analisis performa
 \textit{ensemble} dibandingkan model tunggal dan \textit{ensemble}
-homogen, hasil \textit{ablation study}, analisis pendukung efisiensi
-komputasi, serta pembahasan mendalam terhadap seluruh hasil yang
-diperoleh. \par
+homogen, hasil \textit{ablation study}, analisis \textit{trade-off}
+performa terhadap waktu pelatihan, serta pembahasan mendalam terhadap
+seluruh hasil yang diperoleh. \par
 
 \subsection*{Bab V}
 Bab ini berisi kesimpulan dari hasil penelitian yang menjawab seluruh
