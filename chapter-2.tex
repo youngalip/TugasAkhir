@@ -18,10 +18,12 @@ memungkinkan perbandingan yang adil antar berbagai metode. \par
     akurasi 83.3\%, sedangkan kombinasi teks dan gambar meningkatkan
     akurasi menjadi 84.4\%. Untuk Task 2 (\textit{Humanitarian
     Categories}), unimodal citra mencapai akurasi 76.8\%, sementara
-    pendekatan multimodal menghasilkan akurasi 78.4\%. Meskipun
-    pendekatan multimodal memberikan peningkatan performa, angka
-    unimodal berbasis citra tersebut menjadi \textit{baseline} yang
-    relevan bagi penelitian yang berfokus pada modalitas citra saja.
+    pendekatan multimodal menghasilkan akurasi 78.4\%. Penelitian ini
+    juga menerapkan penggabungan kelas pada Task 2 dari delapan kelas
+    asli menjadi lima kelas untuk menangani ketidakseimbangan kelas
+    yang ekstrem, sebuah keputusan yang kemudian banyak diikuti
+    oleh penelitian-penelitian selanjutnya yang menggunakan
+    \textit{dataset} yang sama.
 
     \item Mohanty et al. membandingkan beberapa arsitektur CNN
     (\textit{Inception V3}, VGG, dan ResNet) untuk klasifikasi citra
@@ -45,10 +47,32 @@ memungkinkan perbandingan yang adil antar berbagai metode. \par
     dari dua model terbaik (DenseNet201 dan VGG16, atau DenseNet201 dan
     MobileNetV2) memberikan peningkatan akurasi sekitar 1\%
     dibandingkan model tunggal terbaik, dengan akurasi mencapai 84.6\%.
-    Namun, penelitian tersebut hanya menggunakan \textit{homogeneous
-    ensemble} dari CNN dan tidak menganalisis pertukaran antara
-    peningkatan akurasi dengan biaya komputasi seperti waktu inferensi
-    dan penggunaan memori.
+    Sebagai arah pengembangan ke depan, penelitian ini secara eksplisit
+    mengidentifikasi \textit{EfficientNetV2} sebagai arsitektur yang
+    menjanjikan untuk dieksplorasi lebih lanjut karena menunjukkan
+    hasil yang unggul pada \textit{dataset ImageNet} namun belum pernah
+    diterapkan dalam domain respons bencana. Selain itu, penelitian ini
+    juga menyebut eksplorasi \textit{heterogeneous ensemble} sebagai
+    salah satu arah yang relevan untuk meningkatkan adaptabilitas
+    sistem. Namun, penelitian tersebut hanya menggunakan
+    \textit{homogeneous ensemble} dari CNN dan tidak menganalisis
+    pertukaran antara peningkatan akurasi dengan biaya komputasi.
+
+    \item Alam et al. melakukan evaluasi komparatif sistematis terhadap
+    sepuluh arsitektur jaringan syaraf tiruan pada \textit{dataset}
+    \textit{CrisisMMD} yang mencakup empat tugas klasifikasi secara
+    sekaligus \cite{ofli2020benchmarks}. Penelitian ini menemukan bahwa
+    \textit{EfficientNet-B1} mencapai rata-rata \textit{F1-score}
+    tertinggi sebesar 0.801 — mengungguli seluruh arsitektur pembanding
+    termasuk ResNet18, ResNet50, ResNet101, AlexNet, VGG16, DenseNet,
+    SqueezeNet, InceptionNet, dan MobileNetV2. Di samping akurasi yang
+    unggul, \textit{EfficientNet-B1} juga menunjukkan efisiensi
+    komputasi yang tinggi dengan kemampuan memproses sekitar 260 citra
+    per detik. Temuan ini memberikan bukti empiris langsung bahwa
+    keluarga arsitektur \textit{EfficientNet} memiliki superioritas
+    yang konsisten di domain klasifikasi citra krisis, sehingga menjadi
+    landasan kuat untuk mengeksplorasi varian yang lebih baru yaitu
+    \textit{EfficientNetV2-M} dalam penelitian ini.
 
     \item Long et al. memperkenalkan \textit{CrisisViT}, sebuah
     arsitektur \textit{Vision Transformer} yang dirancang khusus untuk
@@ -96,16 +120,21 @@ mencakup ragam arsitektur dari CNN murni hingga \textit{Transformer}
 murni secara sistematis pada \textit{dataset CrisisMMD} belum pernah
 dilakukan. Kedua, potensi \textit{heterogeneous ensemble} yang
 menggabungkan CNN dan \textit{Transformer} untuk domain klasifikasi
-informasi krisis belum dieksplorasi, padahal secara teoritis keragaman
-arsitektur yang lebih tinggi berpotensi menghasilkan peningkatan
-performa yang lebih signifikan. Ketiga, analisis sistematis terhadap
-faktor-faktor yang mempengaruhi performa \textit{ensemble} dalam bentuk
-\textit{ablation study} masih sangat jarang dilakukan pada domain ini.
-Penelitian ini mengisi ketiga celah tersebut dengan melakukan analisis
-komparatif sistematis antara empat arsitektur (\textit{EfficientNetV2-M},
-\textit{ConvNeXt-Base}, \textit{Swin-Small}, dan ViT-B/16), berbagai
-konfigurasi \textit{ensemble} heterogen, serta \textit{ablation study}
-pada ketiga tugas klasifikasi \textit{CrisisMMD}. \par
+informasi krisis belum dieksplorasi, padahal Firmansyah et al.
+secara eksplisit mengidentifikasi hal ini sebagai arah pengembangan
+yang menjanjikan. Ketiga, analisis sistematis terhadap kontribusi
+individual setiap komponen metodologi dalam bentuk \textit{ablation
+study} komponen-per-komponen masih sangat jarang dilakukan pada domain
+ini. Penelitian ini mengisi ketiga celah tersebut dengan melakukan
+analisis komparatif sistematis antara empat arsitektur
+(\textit{EfficientNetV2-M}, \textit{ConvNeXt-Base}, \textit{Swin-Small},
+dan ViT-B/16) — dimana pemilihan \textit{EfficientNetV2-M} secara
+langsung merespons rekomendasi \textit{future work} dari Firmansyah
+et al. (2022) dan didukung oleh bukti empiris superioritas
+\textit{EfficientNet} pada \textit{CrisisMMD} yang ditunjukkan
+Alam et al. (2020) — serta berbagai konfigurasi \textit{ensemble}
+heterogen dan \textit{ablation study} komponen-per-komponen pada
+ketiga tugas klasifikasi \textit{CrisisMMD}. \par
 
 \begin{longtable}{|b{0.04\textwidth}|p{0.22\textwidth}|p{0.18\textwidth}
 |p{0.18\textwidth}|p{0.22\textwidth}|}
@@ -126,11 +155,11 @@ pada ketiga tugas klasifikasi \textit{CrisisMMD}. \par
     disaster response (Ofli et al., 2020) \cite{ofli2020analysis} &
     Klasifikasi otomatis citra bencana dari media sosial dengan
     memanfaatkan modalitas teks dan citra secara bersamaan &
-    CNN + teks multimodal (unimodal teks, unimodal citra, multimodal)
-    pada \textit{CrisisMMD} &
-    T1: 84.4\% (multimodal), 83.3\% (image-only); T2: 78.4\%
-    (multimodal), 76.8\% (image-only). Tidak ada analisis
-    \textit{trade-off} komputasi \\
+    CNN + teks multimodal pada \textit{CrisisMMD}; Task 2 menggunakan
+    5 kelas hasil penggabungan dari 8 kelas asli &
+    T1: 84.4\% (multimodal), 83.3\% (\textit{image-only}); T2: 78.4\%
+    (multimodal), 76.8\% (\textit{image-only}). Menjadi preseden
+    penggabungan kelas Task 2 \\
     \hline
     2. &
     A multi-modal approach towards mining social media data during
@@ -150,10 +179,25 @@ pada ketiga tugas klasifikasi \textit{CrisisMMD}. \par
     \textit{CrisisMMD} menggunakan \textit{homogeneous ensemble} CNN &
     \textit{Ensemble} lima CNN (VGG16, DenseNet201, MobileNetV2,
     InceptionV3, ResNet50) dengan \textit{simple averaging} &
-    Akurasi 84.6\% (DenseNet201 + VGG16). Tidak ada arsitektur
-    \textit{Transformer} dan tidak ada analisis biaya komputasi \\
+    Akurasi 84.6\% (DenseNet201 + VGG16). Merekomendasikan
+    \textit{EfficientNetV2} dan \textit{heterogeneous ensemble}
+    sebagai \textit{future work} \\
     \hline
     4. &
+    Deep learning benchmarks and datasets for social media image
+    classification for disaster response (Alam et al., 2020)
+    \cite{ofli2020benchmarks} &
+    Kurangnya \textit{benchmark} sistematis arsitektur CNN pada
+    \textit{CrisisMMD} untuk seluruh tugas klasifikasi secara
+    bersamaan &
+    Evaluasi 10 arsitektur CNN (\textit{EfficientNet-B1}, ResNet,
+    VGG16, DenseNet, dll.) pada \textit{CrisisMMD} &
+    \textit{EfficientNet-B1} mencapai rata-rata F1 tertinggi 0.801,
+    mengungguli seluruh 9 arsitektur pembanding. Efisiensi tinggi:
+    $\sim$260 citra/detik. Tidak ada \textit{ensemble} dan
+    \textit{Transformer} \\
+    \hline
+    5. &
     CrisisViT: A robust vision transformer for crisis image
     classification (Long et al., 2023) \cite{long2023crisisvit} &
     Penerapan arsitektur \textit{Transformer} pada klasifikasi citra
@@ -163,7 +207,7 @@ pada ketiga tugas klasifikasi \textit{CrisisMMD}. \par
     Performa kompetitif pada klasifikasi krisis. Tidak ada komparasi
     CNN dan tidak ada analisis \textit{trade-off} \\
     \hline
-    5. &
+    6. &
     ConvSFNet: A novel architecture for disaster image analysis
     (Debnath et al., 2024) \cite{debnath2024convsfnet} &
     Klasifikasi citra bencana pada dataset MEDIC menggunakan arsitektur
@@ -174,7 +218,7 @@ pada ketiga tugas klasifikasi \textit{CrisisMMD}. \par
     \textit{baseline}. Tidak ada \textit{Transformer} dan tidak ada
     \textit{ensemble} \\
     \hline
-    6. &
+    7. &
     Ensemble deep learning: A review (Ganaie et al., 2022)
     \cite{ganaie2022ensemble} &
     Kurangnya tinjauan komprehensif tentang strategi
@@ -251,9 +295,7 @@ citra ke dalam kelas-kelas yang telah ditentukan berdasarkan konten
 visualnya \cite{lecun1998gradient}. Dalam konteks respons bencana,
 klasifikasi citra bertujuan untuk mengidentifikasi informasi yang
 relevan dari ribuan gambar yang dibagikan di media sosial selama
-kejadian bencana, mencakup pembedaan citra informatif dari yang tidak
-informatif, kategorisasi jenis informasi kemanusiaan, serta penilaian
-tingkat kerusakan. \par
+kejadian bencana. \par
 
 
 \subsection{Convolutional Neural Network} \label{II.Teori.CNN}
@@ -313,10 +355,24 @@ dan \textit{depthwise convolution} menjadi satu operasi konvolusi tunggal,
 menghasilkan kecepatan pelatihan yang lebih tinggi. Selain itu,
 \textit{EfficientNetV2} menggunakan strategi \textit{progressive
 learning} yang secara bertahap meningkatkan ukuran citra masukan dan
-kekuatan augmentasi selama pelatihan. Varian \textit{EfficientNetV2-M} yang digunakan dalam penelitian ini
-memiliki sekitar 54 juta parameter dengan FLOPs sekitar 24 GFLOPs,
-menjadikannya representasi CNN modern yang efisien dalam spektrum
-arsitektur yang dibandingkan \cite{tan2021efficientnetv2}. \par
+kekuatan augmentasi selama pelatihan. Varian \textit{EfficientNetV2-M}
+yang digunakan dalam penelitian ini memiliki sekitar 54 juta parameter
+dengan FLOPs sekitar 24 GFLOPs \cite{tan2021efficientnetv2}. \par
+
+Relevansi arsitektur \textit{EfficientNet} untuk domain klasifikasi
+citra bencana telah dibuktikan secara empiris oleh Alam et al. melalui
+evaluasi komparatif pada \textit{dataset CrisisMMD}, dimana
+\textit{EfficientNet-B1} berhasil mengungguli seluruh sembilan arsitektur
+pembanding termasuk VGG16, DenseNet, dan semua varian ResNet dengan
+rata-rata \textit{F1-score} 0.801 \cite{ofli2020benchmarks}. Temuan
+ini dikuatkan oleh Firmansyah et al. yang secara eksplisit
+mengidentifikasi \textit{EfficientNetV2} sebagai kandidat arsitektur
+yang menjanjikan untuk dieksplorasi lebih lanjut di domain respons
+bencana karena menunjukkan hasil luar biasa menggunakan \textit{ImageNet}
+namun belum pernah diterapkan pada domain ini \cite{firmansyah2022ensemble}.
+Penelitian ini secara langsung merespons rekomendasi tersebut dengan
+memilih \textit{EfficientNetV2-M} sebagai salah satu arsitektur
+yang dibandingkan. \par
 
 % TODO: Tambahkan gambar perbandingan blok MBConv vs Fused-MBConv
 % Sumber: Tan & Le (2021), Figure 2
@@ -340,20 +396,15 @@ menjawab pertanyaan sejauh mana CNN murni dapat bersaing dengan
 Beberapa pembaruan kunci yang diadopsi mencakup penggunaan
 \textit{depthwise convolution} berukuran besar (7$\times$7) yang
 memungkinkan setiap filter menangkap konteks spasial yang lebih luas,
-lapisan normalisasi \textit{LayerNorm} (normalisasi per lapisan)
-sebagai pengganti \textit{BatchNorm} (normalisasi per batch), fungsi
-aktivasi \textit{GELU} sebagai pengganti \textit{ReLU}, serta
-pengurangan jumlah lapisan aktivasi dan normalisasi per blok. \par
-
-Hasil evaluasi menunjukkan bahwa \textit{ConvNeXt} mampu melampaui
-\textit{Swin Transformer} pada berbagai tolok ukur \textit{computer
-vision} dengan kompleksitas komputasi yang sebanding
-\cite{liu2022convnext}. Hal ini menunjukkan bahwa batas kemampuan CNN
-belum sepenuhnya tercapai dan prinsip konvolusional masih relevan
-ketika dikombinasikan dengan desain arsitektur yang modern. Varian
-\textit{ConvNeXt-Base} yang digunakan dalam penelitian ini memiliki
-sekitar 88 juta parameter dengan FLOPs sekitar 15 GFLOPs
-\cite{liu2022convnext}. \par
+lapisan normalisasi \textit{LayerNorm} sebagai pengganti
+\textit{BatchNorm}, fungsi aktivasi \textit{GELU} sebagai pengganti
+\textit{ReLU}, serta pengurangan jumlah lapisan aktivasi dan normalisasi
+per blok. Hasil evaluasi menunjukkan bahwa \textit{ConvNeXt} mampu
+melampaui \textit{Swin Transformer} pada berbagai tolok ukur
+\textit{computer vision} dengan kompleksitas komputasi yang sebanding
+\cite{liu2022convnext}. Varian \textit{ConvNeXt-Base} yang digunakan
+dalam penelitian ini memiliki sekitar 88 juta parameter dengan FLOPs
+sekitar 15 GFLOPs \cite{liu2022convnext}. \par
 
 % TODO: Tambahkan gambar blok desain ConvNeXt vs ResNet
 % Sumber: Liu et al. (2022), Figure 3
@@ -379,13 +430,12 @@ informasi secara lokal melalui operasi konvolusi, mekanisme
 \textit{self-attention} memungkinkan setiap elemen dalam urutan masukan
 untuk berinteraksi secara langsung dengan semua elemen lainnya,
 sehingga mampu menangkap ketergantungan jarak jauh dalam satu langkah.
-Setiap kepala atensi (\textit{attention head}) mempelajari hubungan
-yang berbeda antar elemen, dan hasilnya digabungkan untuk menghasilkan
-representasi yang kaya. Komponen utama lainnya adalah
-\textit{position-wise feed-forward network} yang diterapkan secara
-independen pada setiap posisi, serta \textit{residual connections}
-(koneksi sisa) dan \textit{layer normalization} yang memfasilitasi
-pelatihan jaringan yang dalam \cite{vaswani2017attention}. \par
+Setiap kepala atensi mempelajari hubungan yang berbeda antar elemen,
+dan hasilnya digabungkan untuk menghasilkan representasi yang kaya.
+Komponen utama lainnya adalah \textit{position-wise feed-forward network}
+yang diterapkan secara independen pada setiap posisi, serta
+\textit{residual connections} dan \textit{layer normalization} yang
+memfasilitasi pelatihan jaringan yang dalam \cite{vaswani2017attention}. \par
 
 % TODO: Tambahkan gambar arsitektur Transformer (multi-head self-attention)
 % Sumber: Vaswani et al. (2017), Figure 2
@@ -407,22 +457,15 @@ ViT-B/16), kemudian mem-\textit{flatten} setiap \textit{patch} menjadi
 vektor dan memprosesnya sebagai urutan token menggunakan mekanisme
 \textit{self-attention}. Sebuah token \textit{class} yang dapat
 dipelajari ditambahkan pada awal urutan dan digunakan sebagai representasi
-keseluruhan citra untuk klasifikasi akhir. \par
-
-Mekanisme \textit{self-attention} pada ViT memungkinkan setiap
-\textit{patch} untuk berinteraksi dengan semua \textit{patch} lainnya
-sejak \textit{layer} pertama, memberikan kemampuan untuk menangkap
-ketergantungan jarak jauh tanpa dibatasi oleh \textit{receptive field}
-(area citra yang dapat dilihat oleh satu neuron) seperti pada CNN
-\cite{dosovitskiy2021image}. \textit{Positional encoding} (penyandian
-posisi) ditambahkan untuk mempertahankan informasi posisi spasial dari
-setiap \textit{patch}. ViT membutuhkan data \textit{pre-training} yang
-sangat besar untuk mencapai performa optimal karena tidak memiliki
-\textit{inductive bias} bawaan seperti CNN. ViT-B/16 yang digunakan
-dalam penelitian ini memiliki 12 \textit{layer Transformer encoder}
-dengan dimensi tersembunyi 768 dan 12 \textit{attention heads},
-menghasilkan total sekitar 86 juta parameter
-\cite{dosovitskiy2021image}. \par
+keseluruhan citra untuk klasifikasi akhir. Mekanisme \textit{self-attention}
+pada ViT memungkinkan setiap \textit{patch} untuk berinteraksi dengan
+semua \textit{patch} lainnya sejak \textit{layer} pertama, memberikan
+kemampuan untuk menangkap ketergantungan jarak jauh tanpa dibatasi oleh
+\textit{receptive field} seperti pada CNN \cite{dosovitskiy2021image}.
+ViT-B/16 yang digunakan dalam penelitian ini memiliki 12
+\textit{layer Transformer encoder} dengan dimensi tersembunyi 768 dan
+12 \textit{attention heads}, menghasilkan total sekitar 86 juta
+parameter \cite{dosovitskiy2021image}. \par
 
 % TODO: Tambahkan gambar arsitektur ViT (patch embedding + token sequence)
 % Sumber: Dosovitskiy et al. (2021), Figure 1
@@ -440,25 +483,15 @@ menghasilkan total sekitar 86 juta parameter
 \textit{Swin Transformer} diperkenalkan oleh Liu et al. sebagai
 arsitektur \textit{Transformer} hierarkis yang mengintegrasikan konsep
 lokalitas dan hierarki dari CNN ke dalam kerangka \textit{Transformer}
-\cite{liu2021swin}. Motivasi utama pengembangan ini adalah untuk
-mengatasi dua tantangan utama ViT: kompleksitas komputasi yang tumbuh
-secara kuadratik terhadap ukuran citra, dan kurangnya representasi
-hierarkis yang berguna untuk berbagai tugas penglihatan mesin. \par
-
-Kontribusi utama \textit{Swin Transformer} adalah mekanisme
+\cite{liu2021swin}. Kontribusi utamanya adalah mekanisme
 \textit{shifted window attention} yang membatasi komputasi
 \textit{self-attention} hanya dalam jendela lokal yang tidak tumpang
 tindih, kemudian menggeser posisi jendela pada lapisan berikutnya
 untuk memungkinkan koneksi antar jendela. Pendekatan ini menghasilkan
 kompleksitas komputasi yang tumbuh secara linier terhadap ukuran citra,
-bukan kuadratik seperti ViT standar. Selain itu, \textit{Swin
-Transformer} membangun representasi hierarkis dengan secara bertahap
-menggabungkan \textit{patch} yang berdekatan di lapisan yang lebih
-dalam, menghasilkan peta fitur dengan resolusi berbeda yang berguna
-untuk berbagai tugas \textit{computer vision} \cite{liu2021swin}.
-Varian \textit{Swin-Small} yang digunakan dalam penelitian ini memiliki
-sekitar 49 juta parameter dengan FLOPs sekitar 8.5 GFLOPs
-\cite{liu2021swin}. \par
+berbeda dengan ViT standar yang kuadratik. Varian \textit{Swin-Small}
+yang digunakan dalam penelitian ini memiliki sekitar 49 juta parameter
+dengan FLOPs sekitar 8.5 GFLOPs \cite{liu2021swin}. \par
 
 % TODO: Tambahkan gambar shifted window attention pada Swin Transformer
 % Sumber: Liu et al. (2021), Figure 2
@@ -479,34 +512,26 @@ yang telah dipelajari dari satu tugas untuk meningkatkan performa pada
 tugas yang berbeda namun terkait \cite{pan2010survey}. Dalam konteks
 klasifikasi citra bencana, \textit{transfer learning} sangat penting
 karena \textit{dataset} anotasi untuk domain spesifik seringkali
-terbatas. Model yang telah mempelajari representasi visual umum dari
-jutaan citra pada \textit{ImageNet} dapat beradaptasi untuk mengenali
-pola-pola spesifik dalam citra bencana dengan hanya beberapa ribu
-contoh pelatihan, mengurangi kebutuhan data dan waktu komputasi secara
-signifikan. \par
+terbatas. \par
 
-Strategi \textit{fine-tuning} yang digunakan selama \textit{transfer
-learning} berpengaruh signifikan terhadap performa akhir model.
-\textit{Full fine-tuning} yang langsung melatih seluruh lapisan model
-sejak awal berisiko menyebabkan \textit{catastrophic forgetting}
-(pelupaan katastrofik, yaitu hilangnya pengetahuan yang telah dipelajari
-dari \textit{pre-training} akibat pembaruan bobot yang terlalu agresif)
-pada representasi yang sudah dipelajari, terutama ketika \textit{dataset}
-target berukuran kecil \cite{kirkpatrick2017catastrophic}. Untuk
-mengatasi hal ini, penelitian ini menggunakan strategi
-\textit{two-stage fine-tuning} yang membagi proses pelatihan menjadi
-dua tahap. Pada Stage 1, \textit{backbone} dibekukan seluruhnya dan
-hanya lapisan \textit{classifier head} yang dilatih selama 5 epoch
-dengan \textit{learning rate} yang lebih besar, memungkinkan
-\textit{head} yang masih acak untuk konvergen terlebih dahulu tanpa
+Strategi \textit{fine-tuning} berpengaruh signifikan terhadap performa
+akhir model. \textit{Full fine-tuning} yang langsung melatih seluruh
+lapisan berisiko menyebabkan \textit{catastrophic forgetting} (pelupaan
+katastrofik) — hilangnya pengetahuan yang telah dipelajari dari
+\textit{pre-training} akibat pembaruan bobot yang terlalu agresif,
+terutama ketika \textit{dataset} target berukuran kecil relatif terhadap
+kapasitas model \cite{kirkpatrick2017catastrophic}. Penelitian ini
+menggunakan strategi \textit{two-stage fine-tuning} untuk mencegah hal
+tersebut. Pada Stage 1, \textit{backbone} dibekukan seluruhnya dan
+hanya \textit{classifier head} yang dilatih selama 10 epoch, sehingga
+\textit{head} yang diinisialisasi secara acak dapat konvergen tanpa
 merusak fitur \textit{pretrained}. Pada Stage 2, seluruh lapisan dibuka
-dengan \textit{differential learning rate} (laju pembelajaran berbeda
-per lapisan) dimana \textit{backbone} menggunakan \textit{learning rate}
-10 kali lebih kecil dibandingkan \textit{head}, dengan
-\textit{early stopping} (penghentian dini) berbasis \textit{validation
-loss} dengan \textit{patience} 5 epoch. Pendekatan ini mencegah
-\textit{catastrophic forgetting} sekaligus memungkinkan seluruh model
-beradaptasi secara optimal terhadap domain target. \par
+dengan \textit{differential learning rate} — \textit{backbone}
+menggunakan \textit{learning rate} yang jauh lebih kecil dibandingkan
+\textit{head}, dengan \textit{early stopping} berbasis \textit{validation
+accuracy} (patience 5 epoch). Pendekatan ini mencegah \textit{catastrophic
+forgetting} sekaligus memungkinkan seluruh model beradaptasi secara
+optimal terhadap domain target. \par
 
 % TODO: Buat diagram alur two-stage fine-tuning (dibuat sendiri)
 \begin{figure}[h]
@@ -532,6 +557,13 @@ cenderung menghasilkan keragaman prediksi yang lebih tinggi, yang
 berkontribusi pada peningkatan performa yang lebih signifikan
 dibandingkan \textit{homogeneous ensemble} \cite{ganaie2022ensemble}. \par
 
+Penelitian ini mengevaluasi delapan konfigurasi \textit{ensemble}
+(E1--E8) yang dibagi ke dalam dua kelompok utama. Kelompok pertama
+(E1--E4) mengevaluasi strategi penggabungan yang berbeda menggunakan
+keempat model. Kelompok kedua (E5--E8) mengevaluasi pengaruh komposisi
+arsitektur dengan membandingkan \textit{ensemble} homogen dan heterogen
+menggunakan subset dari keempat model. \par
+
 \subsubsection{Simple Averaging}
 \textit{Simple averaging} adalah strategi \textit{ensemble} yang
 memberikan bobot sama untuk setiap model. Prediksi akhir dihitung
@@ -545,9 +577,11 @@ sebagai rata-rata probabilitas dari seluruh model:
 }
 \end{equationcaptioned}
 
-dimana $M$ adalah jumlah model, $P_m(c \mid x)$ adalah probabilitas
-prediksi model ke-$m$ untuk kelas $c$ pada masukan $x$, dan kelas
-akhir dipilih berdasarkan probabilitas tertinggi. \par
+dimana $M$ adalah jumlah model dan $P_m(c \mid x)$ adalah probabilitas
+prediksi model ke-$m$ untuk kelas $c$ pada masukan $x$. Strategi ini
+digunakan pada E1 (keempat model), E5 (CNN saja), E6
+(\textit{Transformer} saja), E7 (\textit{ConvNeXt} + \textit{Swin}),
+dan E8 (\textit{EfficientNetV2-M} + ViT-B/16). \par
 
 \subsubsection{Weighted Voting}
 \textit{Weighted voting} memberikan bobot berbeda kepada masing-masing
@@ -562,60 +596,173 @@ mendapat pengaruh lebih besar dalam prediksi akhir:
 }
 \end{equationcaptioned}
 
-dimana $w_m$ adalah bobot model ke-$m$ yang ditetapkan berdasarkan
-akurasi validasinya. \par
+dimana $w_m$ adalah bobot model ke-$m$ berdasarkan akurasi validasinya.
+Strategi ini digunakan pada E2. \par
 
 \subsubsection{Stacking dengan Logistic Regression}
-\textit{Stacking} adalah strategi \textit{ensemble} yang melatih sebuah
-\textit{meta-learner} untuk mempelajari cara terbaik menggabungkan
-prediksi dari model-model dasar \cite{ganaie2022ensemble}. Berbeda
-dengan \textit{simple averaging} dan \textit{weighted voting} yang
-menggunakan aturan kombinasi yang telah ditetapkan, \textit{stacking}
-mempelajari kombinasi tersebut secara adaptif dari data. \par
+\textit{Stacking} melatih sebuah \textit{meta-learner} untuk mempelajari
+cara terbaik menggabungkan prediksi dari model-model dasar secara
+adaptif dari data \cite{ganaie2022ensemble}. Dalam penelitian ini,
+\textit{Logistic Regression} digunakan sebagai \textit{meta-learner}
+karena mudah diinterpretasi dan efektif untuk kombinasi prediksi
+probabilistik. Vektor fitur dibentuk dengan menggabungkan
+(\textit{concatenate}) probabilitas dari seluruh model dasar, sehingga
+untuk $M$ model dan $C$ kelas, dimensi fitur masukan adalah $M \times C$.
+Strategi ini digunakan pada E3. \par
 
-Dalam penelitian ini, \textit{meta-learner} yang digunakan adalah
-\textit{Logistic Regression} yang dilatih pada vektor probabilitas yang
-dihasilkan oleh keempat model dasar pada \textit{validation set}. Vektor
-fitur untuk setiap sampel dibentuk dengan menggabungkan (\textit{concatenate})
-vektor probabilitas dari seluruh model dasar, sehingga untuk $M$ model
-dan $C$ kelas, dimensi fitur masukan \textit{meta-learner} adalah
-$M \times C$. \textit{Meta-learner} kemudian dievaluasi pada
-\textit{test set} menggunakan probabilitas dari model-model dasar yang
-telah dilatih. Penggunaan \textit{Logistic Regression} sebagai \textit{meta-learner}
-dipilih karena sifatnya yang mudah diinterpretasi dan terbukti efektif
-untuk masalah kombinasi prediksi probabilistik
-\cite{ganaie2022ensemble}. \par
+\subsubsection{Temperature Scaling}
+\textit{Temperature scaling} adalah teknik kalibrasi probabilitas yang
+memperbaiki tingkat kepercayaan prediksi model sebelum digabungkan
+dalam \textit{ensemble} \cite{guo2017calibration}. Model \textit{deep
+learning} modern seringkali menghasilkan probabilitas yang terlalu
+tinggi (\textit{overconfident}) sehingga kalibrasi diperlukan sebelum
+probabilitas dari beberapa model dijumlahkan. Secara intuitif,
+\textit{temperature scaling} berfungsi seperti "menyamakan volume"
+setiap model agar tidak ada satu model yang mendominasi hanya karena
+probabilitasnya secara konsisten lebih tinggi, bukan karena prediksinya
+lebih akurat. \par
+
+\textit{Temperature scaling} menambahkan parameter skalar $T > 0$ pada
+\textit{logit} (keluaran sebelum \textit{softmax}) sebelum normalisasi
+probabilitas:
+
+\begin{equationcaptioned}[eq:temperature_scaling]{
+    \hat{p}_c = \frac{\exp(z_c / T)}{\sum_{k=1}^{C} \exp(z_k / T)}
+}{
+    Temperature Scaling
+}
+\end{equationcaptioned}
+
+dimana $z_c$ adalah \textit{logit} untuk kelas $c$ dan $T$ adalah
+parameter temperatur. Nilai $T > 1$ menghasilkan distribusi yang lebih
+datar (mengurangi \textit{overconfidence}), sedangkan $T < 1$ menghasilkan
+distribusi yang lebih tajam. Nilai $T^*$ optimal dicari per model dengan
+meminimalkan \textit{Negative Log-Likelihood} (NLL) pada
+\textit{validation set}:
+
+\begin{equationcaptioned}[eq:temperature_nll]{
+    T^* = \arg\min_{T} \left( -\frac{1}{N} \sum_{i=1}^{N}
+    \log \hat{p}_{y_i}(T) \right)
+}{
+    Optimasi Temperature via NLL
+}
+\end{equationcaptioned}
+
+Setelah kalibrasi, probabilitas dari keempat model digabungkan dengan
+\textit{simple averaging}. Strategi ini digunakan pada E4. \par
 
 
 \subsection{Augmentasi Data} \label{II.Teori.Augmentasi}
 Augmentasi data adalah teknik untuk meningkatkan keragaman data
 pelatihan dengan membuat variasi artifisial dari citra yang ada tanpa
 mengubah labelnya \cite{shorten2019survey}. Teknik ini bertujuan
-mengurangi risiko \textit{overfitting} (kondisi di mana model terlalu
-menyesuaikan diri dengan data pelatihan sehingga gagal menggeneralisasi
-pada data baru) dan meningkatkan kemampuan generalisasi model. Teknik augmentasi yang digunakan dalam penelitian
-ini meliputi \textit{random resized crop} untuk variasi skala dan posisi,
-\textit{horizontal flip} untuk variasi orientasi, rotasi acak,
-\textit{color jitter} untuk variasi kecerahan dan kontras, serta
-\textit{random erasing} yang secara acak menutupi sebagian wilayah
-citra untuk memaksa model belajar fitur yang lebih \textit{robust}.
-Teknik-teknik ini membantu model menjadi lebih \textit{robust} terhadap
-variasi yang umum terjadi pada citra media sosial. \par
+mengurangi risiko \textit{overfitting} dan meningkatkan kemampuan
+generalisasi model. Dalam penelitian ini, augmentasi data domain-spesifik diterapkan
+sebagai bagian dari \textit{proposed pipeline} pada seluruh task selama
+fase pelatihan. Teknik yang diterapkan dipilih secara spesifik untuk
+mensimulasikan variasi kualitas dan kondisi foto yang umum dijumpai pada
+citra media sosial saat bencana, meliputi: \par
+
+\begin{enumerate}[noitemsep]
+    \item \textit{Random Resized Crop} (skala 0.8--1.0): variasi skala
+    dan posisi objek dalam citra.
+    \item \textit{Random Horizontal Flip} (p=0.5): variasi orientasi
+    horizontal citra.
+    \item \textit{Random Rotation} ($\pm$15°): variasi sudut pengambilan
+    foto akibat kondisi darurat.
+    \item \textit{Color Jitter} (kecerahan, kontras, saturasi, hue):
+    variasi kondisi pencahayaan di lapangan.
+    \item \textit{Gaussian Blur} (kernel 3$\times$3, $\sigma$=0.1--1.0):
+    mensimulasikan blur yang umum terjadi pada foto bencana akibat
+    gerakan kamera yang terburu-buru, kondisi asap, debu, atau hujan.
+    \item \textit{Random Adjust Sharpness} (p=0.3): mensimulasikan
+    variasi kualitas JPEG akibat kompresi berulang saat foto
+    di-\textit{screenshot} dan di-\textit{repost} di media sosial.
+    \item \textit{Random Grayscale} (p=0.1): mensimulasikan foto
+    grayscale atau kondisi minim cahaya yang umum pada dokumentasi
+    bencana.
+\end{enumerate}
+
+Kelima teknik pertama menangani variasi geometris dan warna yang
+bersifat umum, sedangkan tiga teknik terakhir (\textit{Gaussian Blur},
+\textit{Random Adjust Sharpness}, \textit{Random Grayscale}) secara
+khusus dirancang untuk mensimulasikan degradasi kualitas foto yang
+realistis pada konteks media sosial bencana. Pendekatan ini berbeda dari
+augmentasi generik seperti \textit{Random Erasing} yang tidak sesuai
+untuk domain ini karena menghapus region secara acak berisiko
+menghilangkan fitur diskriminatif yang justru paling penting dalam citra
+bencana (misalnya kerusakan bangunan, korban, atau kondisi lapangan).
+Kontribusi augmentasi ini dievaluasi secara kuantitatif melalui
+\textit{ablation study} dengan membandingkan \textit{proposed pipeline}
+(dengan augmentasi) terhadap variant \textit{wo\_augmentation} (tanpa
+augmentasi). \par
+
+\subsubsection{MixUp}
+\textit{MixUp} adalah teknik augmentasi yang membangun sampel pelatihan
+sintetis melalui interpolasi linear antara dua sampel yang dipilih
+secara acak \cite{zhang2018mixup}. Berbeda dengan augmentasi spasial
+konvensional yang hanya memodifikasi satu citra, \textit{MixUp}
+menciptakan sampel campuran di ruang masukan dan ruang label secara
+bersamaan:
+
+\begin{equationcaptioned}[eq:mixup_input]{
+    \tilde{x} = \lambda x_i + (1 - \lambda) x_j, \quad
+    \lambda \sim \text{Beta}(\alpha, \alpha)
+}{
+    MixUp: Interpolasi Input
+}
+\end{equationcaptioned}
+
+dimana $\lambda \in [0, 1]$ disampling dari distribusi Beta($\alpha$,
+$\alpha$) dengan $\alpha > 0$, dan $x_i$, $x_j$ adalah dua sampel
+citra dari \textit{batch} yang sama. Nilai $\lambda$ diambil sebagai
+$\max(\lambda, 1-\lambda)$ sehingga sampel campuran selalu lebih dekat
+ke salah satu sampel asli. Fungsi \textit{loss} untuk sampel campuran
+dihitung sebagai kombinasi linear dari \textit{loss} terhadap kedua
+label asli:
+
+\begin{equationcaptioned}[eq:mixup_loss]{
+    \mathcal{L}_{\text{MixUp}} = \lambda \cdot \mathcal{L}(f(\tilde{x}),
+    y_i) + (1 - \lambda) \cdot \mathcal{L}(f(\tilde{x}), y_j)
+}{
+    MixUp: Kombinasi Loss
+}
+\end{equationcaptioned}
+
+Secara intuitif, \textit{MixUp} mendorong model untuk mempelajari
+batas antar kelas yang gradual dan halus (\textit{smooth decision
+boundary}), bukan batas yang tajam dan diskrit. Hal ini membuat model
+lebih toleran terhadap ambiguitas, dimana sampel yang berada di antara
+dua kelas tidak memaksa model untuk memberikan keyakinan penuh
+(\textit{overconfidence}) pada salah satu kelas. Zhang et al.
+menunjukkan bahwa \textit{MixUp} secara konsisten meningkatkan akurasi
+dan mengurangi \textit{overconfidence} pada berbagai dataset dan
+arsitektur \cite{zhang2018mixup}. \par
+
+Dalam penelitian ini, \textit{MixUp} diterapkan khusus untuk Task 3
+(\textit{Damage Severity Assessment}) dimana batas visual antar kelas
+bersifat gradual dan ambigu — tidak ada garis tegas yang memisahkan
+kerusakan "ringan" dan "parah" secara visual, seperti yang diilustrasikan
+pada Gambar~\ref{fig:task3_samples}. Ambiguitas ini membuat
+\textit{smooth decision boundary} dari \textit{MixUp} menjadi sangat
+relevan. \textit{MixUp} diterapkan hanya selama fase pelatihan dengan
+$\alpha = 0.4$; proses validasi dan evaluasi selalu dilakukan pada data
+asli tanpa \textit{MixUp}. \par
 
 
 \subsection{Optimizer dan Learning Rate Schedule}
 \label{II.Teori.Optimizer}
 
 \subsubsection{AdamW}
-AdamW adalah varian dari algoritma \textit{optimizer} Adam yang
-memisahkan \textit{weight decay} (peluruhan bobot, yaitu penalti
-regularisasi yang mendorong bobot model tetap kecil) dari pembaruan
-gradien \cite{loshchilov2019adamw}. Berbeda dengan Adam standar yang
-menggabungkan \textit{weight decay} ke dalam gradien sebelum normalisasi
-adaptif, AdamW menerapkan \textit{weight decay} langsung pada parameter
-model setelah pembaruan adaptif. Pemisahan ini menghasilkan regularisasi
-yang lebih tepat dan terbukti lebih efektif untuk melatih model berbasis
-\textit{Transformer} seperti ViT dan \textit{Swin Transformer}. \par
+AdamW adalah varian dari \textit{optimizer} Adam yang memisahkan
+\textit{weight decay} (peluruhan bobot — penalti regularisasi yang
+mendorong bobot model tetap kecil untuk mencegah \textit{overfitting})
+dari pembaruan gradien \cite{loshchilov2019adamw}. Berbeda dengan Adam
+standar yang menggabungkan \textit{weight decay} ke dalam gradien
+sebelum normalisasi adaptif, AdamW menerapkan \textit{weight decay}
+langsung pada parameter model setelah pembaruan adaptif. Pemisahan ini
+menghasilkan regularisasi yang lebih tepat dan terbukti lebih efektif
+untuk melatih model berbasis \textit{Transformer}. \par
 
 \subsubsection{Cosine Annealing}
 \textit{Cosine annealing} adalah strategi penjadwalan \textit{learning
@@ -623,17 +770,15 @@ rate} yang menurunkan \textit{learning rate} mengikuti fungsi kosinus
 dari nilai awal menuju nilai minimum \cite{loshchilov2017sgdr}.
 Penjadwalan ini memungkinkan model menjelajahi ruang parameter secara
 luas pada awal pelatihan dan kemudian melakukan konvergensi yang lebih
-halus menuju solusi optimal, menghasilkan proses pelatihan yang lebih
-stabil dan performa akhir yang lebih baik. \par
+halus menuju solusi optimal. \par
 
 
 \subsection{Loss Function} \label{II.Teori.Loss}
 
 \subsubsection{Cross-Entropy Loss}
-\textit{Cross-entropy loss} adalah fungsi kerugian yang paling umum
-digunakan untuk tugas klasifikasi \cite{goodfellow2016deep}. Fungsi
-ini mengukur perbedaan antara distribusi probabilitas prediksi model
-dengan distribusi label sebenarnya:
+\textit{Cross-entropy loss} adalah fungsi kerugian standar untuk tugas
+klasifikasi \cite{goodfellow2016deep} yang mengukur perbedaan antara
+distribusi probabilitas prediksi dengan distribusi label sebenarnya:
 
 \begin{equationcaptioned}[eq:cross_entropy]{
     \mathcal{L}_{CE} = -\frac{1}{N} \sum_{i=1}^{N} \sum_{c=1}^{C}
@@ -644,18 +789,18 @@ dengan distribusi label sebenarnya:
 \end{equationcaptioned}
 
 dimana $N$ adalah jumlah sampel, $C$ adalah jumlah kelas, $y_{i,c}$
-adalah label \textit{one-hot} yang bernilai 1 jika sampel ke-$i$
-termasuk kelas $c$ dan 0 sebaliknya, serta $\hat{p}_{i,c}$ adalah
-probabilitas prediksi model untuk sampel ke-$i$ pada kelas $c$.
-Penelitian ini menggunakan \textit{label smoothing} (pelunakan label)
-dengan nilai 0.1 yang mendistribusikan sebagian kecil probabilitas
-kepada kelas yang salah, berfungsi sebagai regularisasi untuk mencegah
-model terlalu percaya diri terhadap prediksinya. \par
+adalah label \textit{one-hot}, dan $\hat{p}_{i,c}$ adalah probabilitas
+prediksi. Penelitian ini menggunakan \textit{label smoothing} 0.1 pada
+seluruh fungsi \textit{loss} yang diterapkan, yang mendistribusikan
+sebagian kecil probabilitas kepada kelas yang salah sebagai regularisasi
+untuk mencegah model terlalu \textit{overconfident}. \par
 
 \subsubsection{Weighted Cross-Entropy Loss}
-Pada \textit{dataset} dengan distribusi kelas yang tidak seimbang,
-\textit{weighted cross-entropy loss} memberikan bobot yang lebih besar
-pada kelas minoritas untuk mencegah model bias terhadap kelas mayoritas:
+Pada dataset dengan distribusi kelas yang tidak seimbang, model cenderung
+bias terhadap kelas mayoritas karena \textit{loss} dari kelas mayoritas
+mendominasi pembaruan gradien selama pelatihan. \textit{Weighted
+cross-entropy loss} mengatasi hal ini dengan memberikan bobot yang lebih
+besar pada kelas minoritas:
 
 \begin{equationcaptioned}[eq:weighted_cross_entropy]{
     \mathcal{L}_{WCE} = -\frac{1}{N} \sum_{i=1}^{N} \sum_{c=1}^{C}
@@ -666,8 +811,90 @@ pada kelas minoritas untuk mencegah model bias terhadap kelas mayoritas:
 \end{equationcaptioned}
 
 dimana $w_c$ adalah bobot untuk kelas $c$ yang dihitung sebagai
-kebalikan dari frekuensi kemunculan kelas tersebut dalam data
-pelatihan. \par
+kebalikan frekuensi kelas, kemudian dinormalisasi dan di-\textit{clip}
+pada rentang $[1.0, 10.0]$ untuk mencegah bobot yang terlalu ekstrem.
+Secara intuitif, bobot ini membuat kesalahan prediksi pada kelas
+minoritas "terasa lebih mahal" bagi model dibanding kesalahan pada
+kelas mayoritas, sehingga model terdorong untuk lebih memperhatikan
+kelas yang jarang muncul. \par
+
+Penggunaan \textit{Weighted Cross-Entropy} untuk Task 3
+(\textit{Damage Severity Assessment}) dilandasi oleh distribusi kelas
+yang tidak seimbang pada dataset tersebut (sekitar 63\% \textit{severe},
+24\% \textit{mild}, 13\% \textit{little or no damage}) dimana
+\textit{Standard Cross-Entropy} akan cenderung mengoptimalkan prediksi
+kelas \textit{severe damage} saja. Polat et al. menunjukkan bahwa
+pendekatan berbasis pembobotan \textit{loss} efektif untuk tugas
+klasifikasi keparahan (\textit{severity classification}) dengan
+distribusi kelas ordinal yang tidak seimbang, dimana distribusi data
+mereka (sekitar 54\%:27\%:11\%:8\%) memiliki kemiripan pola dengan
+Task 3 \cite{polat2025cdwce}. Pilihan \textit{Weighted CE} (bukan
+\textit{Focal Loss}) untuk Task 3 didasarkan pada tingkat
+ketidakseimbangan yang lebih moderat dibandingkan Task 2 sehingga
+mekanisme pembobotan sederhana sudah memadai tanpa perlu mekanisme
+\textit{Focal Loss} yang lebih agresif. \par
+
+\subsubsection{Focal Loss}
+\textit{Focal Loss} diperkenalkan oleh Lin et al. sebagai solusi untuk
+masalah ketidakseimbangan kelas yang sangat ekstrem
+\cite{lin2017focal}. Ide utamanya adalah memberikan bobot yang lebih
+rendah pada sampel yang mudah diklasifikasikan (\textit{easy examples})
+sehingga model lebih fokus mempelajari sampel yang sulit (\textit{hard
+examples}). Berbeda dengan \textit{Weighted CE} yang hanya
+mempertimbangkan frekuensi kelas, \textit{Focal Loss} juga
+mempertimbangkan tingkat kesulitan setiap sampel individu secara
+dinamis selama pelatihan. \par
+
+\textit{Focal Loss} memodifikasi \textit{cross-entropy} dengan
+menambahkan faktor pemodulasi $(1 - \hat{p}_{i,y_i})^\gamma$:
+
+\begin{equationcaptioned}[eq:focal_loss]{
+    \mathcal{L}_{FL} = -\frac{1}{N} \sum_{i=1}^{N}
+    (1 - \hat{p}_{i, y_i})^{\gamma} \log(\hat{p}_{i, y_i})
+}{
+    Focal Loss
+}
+\end{equationcaptioned}
+
+dimana $\hat{p}_{i, y_i}$ adalah probabilitas prediksi untuk kelas
+yang benar pada sampel ke-$i$, dan $\gamma \geq 0$ adalah parameter
+\textit{focusing}. Ketika $\gamma = 0$, \textit{Focal Loss} identik
+dengan \textit{Cross-Entropy} biasa. Semakin besar $\gamma$, semakin
+besar penekanan pada sampel yang sulit — sampel yang sudah diprediksi
+dengan benar dan penuh keyakinan mendapat bobot mendekati nol sehingga
+tidak mempengaruhi pelatihan. \par
+
+% TODO: Tambahkan gambar perbandingan kurva CE vs Focal Loss untuk berbagai gamma
+% Sumber: Lin et al. (2017), Figure 1
+\begin{figure}[h]
+    \centering
+    % \includegraphics[width=0.65\textwidth]{gambar/focal_loss_curve.png}
+    \fbox{\rule{0pt}{4cm}\rule{0.65\textwidth}{0pt}}
+    \caption{Perbandingan kurva \textit{Cross-Entropy Loss} dan
+    \textit{Focal Loss} untuk berbagai nilai $\gamma$: semakin besar
+    $\gamma$, semakin besar penekanan pada sampel yang sulit
+    \cite{lin2017focal}}
+    \label{fig:focal_loss_curve}
+\end{figure}
+
+Dalam penelitian ini, \textit{Focal Loss} digunakan khusus untuk Task 2
+(\textit{Humanitarian Categories}) yang memiliki ketidakseimbangan
+kelas sangat ekstrem — kelas \textit{missing or found people} hanya
+memiliki 14 sampel dari total 18.082 (rasio $\approx$1:1.291). Rasio
+ini sebanding dengan skenario ekstrem yang menjadi motivasi asli
+\textit{Focal Loss} pada deteksi objek \cite{lin2017focal}. Validasi
+empiris lintas domain diberikan oleh Singh et al. yang menunjukkan
+bahwa \textit{Focal Loss} menghasilkan performa lebih tinggi
+dibandingkan \textit{Weighted CE}, \textit{random oversampling}, dan
+pendekatan penanganan imbalance lainnya pada tugas klasifikasi
+multi-kelas medis yang highly imbalanced \cite{singh2023bbfl}. \par
+
+Nilai $\gamma$ yang digunakan berbeda antar stage pelatihan: $\gamma
+= 2.0$ pada Stage 1 untuk mendorong pembelajaran agresif terhadap
+kelas minoritas sejak awal konvergensi, kemudian diturunkan menjadi
+$\gamma = 1.0$ pada Stage 2 agar \textit{fine-tuning} berlangsung lebih
+halus tanpa risiko \textit{overfitting} terhadap sampel minoritas yang
+jumlahnya sangat sedikit. \par
 
 
 \subsection{Metrik Evaluasi} \label{II.Teori.Metrik}
@@ -683,16 +910,14 @@ prediksi yang dibuat oleh model:
 }
 \end{equationcaptioned}
 
-dimana $TP$ (\textit{True Positive}), $TN$ (\textit{True Negative}),
-$FP$ (\textit{False Positive}), dan $FN$ (\textit{False Negative})
-masing-masing adalah jumlah prediksi positif benar, prediksi negatif
-benar, prediksi positif salah, dan prediksi negatif salah. Meskipun
-intuitif, \textit{accuracy} dapat menyesatkan pada \textit{dataset}
-yang tidak seimbang. \par
+dimana $TP$, $TN$, $FP$, dan $FN$ adalah jumlah prediksi positif
+benar, negatif benar, positif salah, dan negatif salah. Meskipun
+intuitif, \textit{accuracy} dapat menyesatkan pada dataset yang tidak
+seimbang karena model yang selalu memprediksi kelas mayoritas pun
+dapat mencapai \textit{accuracy} yang tinggi. \par
 
 \subsubsection{Precision dan Recall}
-\textit{Precision} mengukur proporsi prediksi positif yang benar dari
-seluruh prediksi positif yang dibuat oleh model:
+\textit{Precision} mengukur proporsi prediksi positif yang benar:
 
 \begin{equationcaptioned}[eq:precision]{
     \text{Precision} = \frac{TP}{TP + FP}
@@ -701,8 +926,8 @@ seluruh prediksi positif yang dibuat oleh model:
 }
 \end{equationcaptioned}
 
-\textit{Recall} mengukur proporsi \textit{instance} positif yang benar
-diidentifikasi dari seluruh \textit{instance} positif sebenarnya:
+\textit{Recall} mengukur proporsi \textit{instance} positif yang
+berhasil diidentifikasi:
 
 \begin{equationcaptioned}[eq:recall]{
     \text{Recall} = \frac{TP}{TP + FN}
@@ -726,9 +951,8 @@ dan \textit{recall} \cite{powers2011evaluation}:
 }
 \end{equationcaptioned}
 
-Dalam konteks klasifikasi multi-kelas, \textit{macro-averaging}
-memberikan bobot sama untuk setiap kelas tanpa mempertimbangkan
-jumlah sampel per kelas:
+Dalam klasifikasi multi-kelas, \textit{macro-averaging} memberikan
+bobot sama untuk setiap kelas:
 
 \begin{equationcaptioned}[eq:f1macro]{
     F1_{\text{macro}} = \frac{1}{C} \sum_{c=1}^{C} F1_c
@@ -747,24 +971,20 @@ jumlah sampel per kelas:
 }
 \end{equationcaptioned}
 
-dimana $n_c$ adalah jumlah \textit{instance} pada kelas $c$ dan
-$N = \sum_{c=1}^{C} n_c$. \textit{Macro F1} digunakan sebagai metrik
-utama dalam penelitian ini karena memberikan bobot yang sama untuk
-setiap kelas, sehingga mencerminkan performa model pada kelas minoritas
-secara adil dan memungkinkan perbandingan yang lebih bermakna pada
-\textit{dataset} yang tidak seimbang. \par
+dimana $n_c$ adalah jumlah \textit{instance} pada kelas $c$.
+\textit{Macro F1} digunakan sebagai metrik utama dalam penelitian ini
+karena memberikan bobot yang sama untuk setiap kelas sehingga
+mencerminkan performa model pada kelas minoritas secara adil —
+hal yang sangat relevan mengingat ketidakseimbangan kelas yang
+signifikan pada Task 2 dan Task 3. \par
 
 \subsubsection{AUC-ROC}
 \textit{Area Under the Receiver Operating Characteristic Curve}
-(AUC-ROC) mengukur kemampuan model untuk membedakan antar kelas secara
-keseluruhan, terlepas dari nilai ambang batas keputusan yang digunakan
-\cite{powers2011evaluation}. Nilai AUC-ROC berkisar antara 0 hingga 1,
-dimana 1 menunjukkan pemisahan kelas yang sempurna dan 0.5 setara
-dengan tebakan acak. Untuk klasifikasi biner, AUC-ROC dihitung
-langsung dari probabilitas kelas positif. Untuk klasifikasi multi-kelas,
-penelitian ini menggunakan pendekatan \textit{One-vs-Rest} (OvR) dengan
-\textit{macro-averaging}, dimana AUC-ROC dihitung untuk setiap kelas
-terhadap semua kelas lainnya kemudian dirata-ratakan:
+(AUC-ROC) mengukur kemampuan model membedakan antar kelas terlepas
+dari nilai ambang batas keputusan \cite{powers2011evaluation}. Nilai
+berkisar antara 0 hingga 1, dimana 1 menunjukkan pemisahan kelas yang
+sempurna. Untuk klasifikasi multi-kelas, penelitian ini menggunakan
+pendekatan \textit{One-vs-Rest} (OvR) dengan \textit{macro-averaging}:
 
 \begin{equationcaptioned}[eq:aucroc]{
     \text{AUC-ROC}_{\text{macro}} = \frac{1}{C} \sum_{c=1}^{C}
@@ -775,56 +995,23 @@ terhadap semua kelas lainnya kemudian dirata-ratakan:
 \end{equationcaptioned}
 
 \subsubsection{Confusion Matrix}
-\textit{Confusion matrix} adalah tabel berukuran $C \times C$ yang
-mendeskripsikan performa model klasifikasi secara mendetail
-\cite{powers2011evaluation}. Elemen pada baris $i$ dan kolom $j$
-menunjukkan jumlah \textit{instance} dari kelas $i$ yang diprediksi
-sebagai kelas $j$. Matriks ini memberikan visualisasi yang jelas tentang
-jenis kesalahan yang dibuat model dan membantu identifikasi kelas mana
-yang sulit diklasifikasikan. \par
+\textit{Confusion matrix} adalah tabel $C \times C$ yang
+mendeskripsikan performa model secara mendetail \cite{powers2011evaluation}.
+Elemen pada baris $i$ dan kolom $j$ menunjukkan jumlah \textit{instance}
+dari kelas $i$ yang diprediksi sebagai kelas $j$. Matriks ini
+memberikan visualisasi jelas tentang jenis kesalahan yang dibuat model
+dan membantu identifikasi kelas mana yang sulit diklasifikasikan. \par
 
 \subsubsection{Metrik Efisiensi Komputasi}
-Evaluasi efisiensi komputasi dilakukan sebagai analisis pendukung pada
-Task 1 untuk memberikan gambaran biaya komputasi dari masing-masing
-konfigurasi model \cite{menghani2023efficient}. \textit{Inference time}
-adalah rata-rata waktu yang dibutuhkan model untuk memproses satu citra
-dalam milidetik (ms):
-
-\begin{equationcaptioned}[eq:inference_time]{
-    t_{\text{avg}} = \frac{1}{B} \sum_{i=1}^{B} t_i
-}{
-    Rata-rata Inference Time
-}
-\end{equationcaptioned}
-
-dimana $B$ adalah jumlah citra dalam \textit{batch} dan $t_i$ adalah
-waktu inferensi untuk citra ke-$i$. \textit{Memory usage} adalah
-konsumsi memori GPU maksimum selama inferensi dalam megabyte (MB).
-FLOPs adalah jumlah operasi matematika \textit{floating-point} yang
-dibutuhkan untuk memproses satu citra dalam GigaFLOPs (GFLOPs),
-memberikan indikasi kompleksitas komputasi yang independen dari
-perangkat keras spesifik:
-
-\begin{equationcaptioned}[eq:flops]{
-    \text{FLOPs} = \sum_{\text{layers}} \text{FLOPs}_{\text{layer}}
-}{
-    Total FLOPs
-}
-\end{equationcaptioned}
-
-Untuk \textit{convolutional layer}, FLOPs dihitung sebagai:
-
-\begin{equationcaptioned}[eq:flops_conv]{
-    \text{FLOPs}_{\text{conv}} = 2 \times H_{\text{out}} \times
-    W_{\text{out}} \times C_{\text{in}} \times C_{\text{out}} \times K^2
-}{
-    FLOPs Convolutional Layer
-}
-\end{equationcaptioned}
-
-dimana $H_{\text{out}}$ dan $W_{\text{out}}$ adalah dimensi output,
-$C_{\text{in}}$ dan $C_{\text{out}}$ adalah jumlah \textit{channel}
-input dan output, dan $K$ adalah ukuran kernel. \par
+Evaluasi efisiensi komputasi dalam penelitian ini difokuskan pada
+\textit{training time}, yaitu total waktu pelatihan per model dalam
+satuan menit. \textit{Training time} mencakup waktu Stage 1, waktu
+Stage 2 aktual sebelum \textit{early stopping}, dan jumlah epoch aktual
+yang diselesaikan. Metrik ini dicatat secara otomatis selama proses
+pelatihan dan digunakan sebagai dasar analisis \textit{trade-off} antara
+performa model dengan biaya komputasi yang dibutuhkan untuk melatihnya,
+memungkinkan perbandingan yang bermakna antar arsitektur dan antar
+variant \textit{ablation study}. \par
 
 
 \subsection{Dataset CrisisMMD} \label{II.Teori.Dataset}
@@ -836,39 +1023,112 @@ bencana alam yang semuanya terjadi pada tahun 2017, yaitu
 \textit{Hurricane Harvey}, \textit{Hurricane Irma},
 \textit{Hurricane Maria}, gempa bumi Mexico, kebakaran hutan California,
 gempa bumi Iraq-Iran, dan banjir Sri Lanka. Setiap \textit{instance}
-dalam \textit{dataset} telah dianotasi secara manual oleh beberapa
-anotator untuk memastikan kualitas label. \par
+telah dianotasi secara manual oleh beberapa anotator. \par
 
-\textit{Dataset} menyediakan tiga tugas klasifikasi utama yang menjadi
-fokus penelitian ini: \par
+\textit{Dataset} menyediakan tiga tugas klasifikasi utama: \par
 
 \textbf{Task 1 -- \textit{Informative Classification}:} Klasifikasi
-citra sebagai \textit{Informative} (mengandung informasi berguna untuk
-respons bencana) atau \textit{Not Informative} (tidak relevan atau
-bukan citra bencana). Ini adalah tugas klasifikasi biner. \par
+citra sebagai \textit{Informative} atau \textit{Not Informative}.
+Distribusi kelas relatif seimbang sehingga \textit{Standard
+Cross-Entropy} sudah memadai. \par
 
 \textbf{Task 2 -- \textit{Humanitarian Categories}:} Klasifikasi citra
-ke dalam delapan kategori: tidak bersifat kemanusiaan
-(\textit{not humanitarian}), kerusakan infrastruktur dan utilitas,
-informasi relevan lainnya, upaya penyelamatan atau donasi, individu
-terdampak, kerusakan kendaraan, orang terluka atau meninggal, serta
-orang hilang atau ditemukan. Ini adalah tugas klasifikasi multi-kelas
-dengan distribusi kelas yang tidak seimbang. \par
+ke dalam kategori kemanusiaan. Distribusi kelas pada Task 2 sangat
+tidak seimbang — kelas \textit{not humanitarian} mendominasi dengan
+48.2\% dari total data, sementara empat kelas minoritas
+(\textit{affected individuals} 3.1\%, \textit{vehicle damage} 1.7\%,
+\textit{injured or dead people} 0.6\%, dan \textit{missing or found
+people} hanya 0.08\%) secara keseluruhan hanya mencakup 5.5\% data.
+Ketidakseimbangan ekstrem ini — khususnya kelas \textit{missing or
+found people} yang hanya memiliki 14 sampel — memerlukan penanganan
+khusus. \par
+
+\subsubsection{Penggabungan Kelas Task 2}
+\label{II.Teori.Dataset.Merge}
+Strategi penggabungan kelas (\textit{class merging}) diterapkan untuk
+menangani ketidakseimbangan kelas yang ekstrem pada Task 2. Keempat
+kelas minoritas (\textit{affected individuals}, \textit{vehicle damage},
+\textit{injured or dead people}, dan \textit{missing or found people})
+digabungkan menjadi satu kelas \textit{direct human impact}, sehingga
+jumlah kelas berkurang dari delapan menjadi lima. \par
+
+Terdapat tiga landasan yang mendukung keputusan ini. Pertama, dari
+sisi \textbf{preseden dalam penelitian CrisisMMD}: Ofli et al. dalam
+evaluasi \textit{dataset} \textit{CrisisMMD} sendiri telah melakukan
+penggabungan kelas dari 8 kelas asli menjadi 5 kelas dengan
+menggabungkan \textit{injured or dead people} dan \textit{missing or
+found people} ke dalam \textit{affected individuals}, serta
+menggabungkan \textit{vehicle damage} ke dalam \textit{infrastructure
+and utility damage} \cite{ofli2020analysis}. Praktik ini kemudian
+diikuti oleh banyak penelitian selanjutnya yang menggunakan dataset
+yang sama. Kedua, dari sisi \textbf{teoritis}: Zhou et al. menunjukkan
+bahwa mengelompokkan kelas-kelas minoritas yang serupa secara semantik
+menjadi \textit{super-class} merupakan strategi yang efektif untuk
+menangani distribusi \textit{long-tail} — distribusi di ruang
+\textit{super-class} menjadi lebih seimbang dan kelas-kelas dalam
+\textit{super-class} yang sama dapat berbagi pengetahuan representasi
+sehingga generalisasi kelas minoritas meningkat \cite{zhou2018superclass}.
+Ketiga, dari sisi \textbf{semantik}: keempat kelas yang digabungkan
+memiliki kesamaan semantik fundamental — semuanya merepresentasikan
+dampak langsung bencana terhadap manusia dan kendaraan yang bersifat
+mobile (berbeda dengan kerusakan infrastruktur yang bersifat statis),
+sehingga penggabungan ini tidak menghilangkan informasi yang secara
+semantik bermakna berbeda. \par
+
+\begin{table}[h]
+    \centering
+    \caption{Pemetaan penggabungan kelas Task 2: dari 8 kelas asli
+    menjadi 5 kelas}
+    \label{table:crisismmd_task2_merge}
+    \begin{tabular}{|l|l|}
+        \hline
+        \textbf{Kelas Asli (8 Kelas)} &
+        \textbf{Kelas Hasil Penggabungan (5 Kelas)} \\
+        \hline
+        Not humanitarian                    & Not humanitarian \\
+        Infrastructure and utility damage   & Infrastructure and utility damage \\
+        Other relevant information          & Other relevant information \\
+        Rescue, volunteering or donation    & Rescue volunteering or donation effort \\
+        Affected individuals                & \multirow{4}{*}{Direct human impact} \\
+        Vehicle damage                      & \\
+        Injured or dead people              & \\
+        Missing or found people             & \\
+        \hline
+    \end{tabular}
+\end{table}
 
 \textbf{Task 3 -- \textit{Damage Severity Assessment}:} Penilaian
-tingkat kerusakan yang ditampilkan dalam gambar ke dalam tiga kategori:
-sedikit atau tidak ada kerusakan (\textit{little or no damage}),
-kerusakan ringan (\textit{mild damage}), dan kerusakan parah
-(\textit{severe damage}). Task 3 merupakan tugas berbasis citra saja
-dengan total sampel yang lebih kecil dibandingkan Task 1 dan Task 2. \par
+tingkat kerusakan ke dalam tiga kategori: \textit{little or no damage},
+\textit{mild damage}, dan \textit{severe damage}. Task 3 memiliki
+total sampel yang lebih kecil dan distribusi kelas yang tidak seimbang
+dengan dominasi kelas \textit{severe damage} ($\approx$63\%). Selain
+itu, perbedaan visual antar kelas pada Task 3 bersifat gradual dan
+ambigu, terutama antara \textit{mild damage} dengan kedua kelas
+tetangganya, sebagaimana diilustrasikan pada
+Gambar~\ref{fig:task3_samples}. \par
 
-Ketiga tugas menggunakan \textit{split} resmi yang disediakan oleh
-pembuat \textit{dataset} dengan rasio 70\% \textit{training set},
-15\% \textit{validation set}, dan 15\% \textit{test set}.
-Pembagian ini dilakukan secara \textit{stratified} sehingga proporsi
-kelas pada setiap \textit{split} konsisten dengan distribusi
-keseluruhan. Rincian pembagian data disajikan pada
-Tabel~\ref{table:crisismmd_task1},
+% TODO: Ekstrak 2 sampel per kelas dari training set Task 3 menggunakan
+% script terpisah (bukan bagian dari training pipeline utama).
+% Format: grid 3 kolom x 2 baris (little | mild | severe), masing-masing
+% 2 contoh foto per kelas yang representatif menunjukkan ambiguitas visual.
+\begin{figure}[h]
+    \centering
+    % \includegraphics[width=0.90\textwidth]{gambar/task3_sample_images.png}
+    \fbox{\rule{0pt}{6cm}\rule{0.90\textwidth}{0pt}}
+    \caption{Contoh citra dari masing-masing kelas Task 3:
+    (kiri) \textit{little or no damage}, (tengah) \textit{mild damage},
+    (kanan) \textit{severe damage}. Perbedaan visual antar kelas
+    bersifat gradual dan ambigu, terutama antara kelas \textit{mild
+    damage} dengan kedua kelas tetangganya, yang menjadi motivasi
+    penggunaan \textit{MixUp} untuk mendorong \textit{smooth decision
+    boundary}.}
+    \label{fig:task3_samples}
+\end{figure}
+
+Ketiga tugas menggunakan \textit{split} resmi dengan rasio 70\%
+\textit{training set}, 15\% \textit{validation set}, dan 15\%
+\textit{test set} secara \textit{stratified}. Rincian pembagian data
+disajikan pada Tabel~\ref{table:crisismmd_task1},
 Tabel~\ref{table:crisismmd_task2}, dan
 Tabel~\ref{table:crisismmd_task3}. \par
 
@@ -896,8 +1156,8 @@ Tabel~\ref{table:crisismmd_task3}. \par
 
 \begin{table}[h]
     \centering
-    \caption{Pembagian data \textit{CrisisMMD} untuk Task 2
-    \cite{alam2018crisismmd}}
+    \caption{Pembagian data \textit{CrisisMMD} untuk Task 2 (8 kelas
+    asli) \cite{alam2018crisismmd}}
     \label{table:crisismmd_task2}
     \begin{tabular}{|l|r|r|r|r|}
         \hline
@@ -907,17 +1167,17 @@ Tabel~\ref{table:crisismmd_task3}. \par
         \textbf{Test} &
         \textbf{Total} \\
         \hline
-        Not humanitarian                       & 6.565 & 1.088 & 1.055 & 8.708 \\
-        Infrastructure and utility damage      & 2.761 &   405 &   458 & 3.624 \\
-        Other relevant information             & 1.860 &   338 &   331 & 2.529 \\
-        Rescue, volunteering or donation       & 1.694 &   281 &   256 & 2.231 \\
-        Affected individuals                   &   397 &    77 &    88 &   562 \\
-        Vehicle damage                         &   230 &    38 &    36 &   304 \\
-        Injured or dead people                 &    92 &     8 &    10 &   110 \\
-        Missing or found people                &     9 &     2 &     3 &    14 \\
+        Not humanitarian                  & 6.565 & 1.088 & 1.055 & 8.708 \\
+        Infrastructure and utility damage & 2.761 &   405 &   458 & 3.624 \\
+        Other relevant information        & 1.860 &   338 &   331 & 2.529 \\
+        Rescue, volunteering or donation  & 1.694 &   281 &   256 & 2.231 \\
+        Affected individuals              &   397 &    77 &    88 &   562 \\
+        Vehicle damage                    &   230 &    38 &    36 &   304 \\
+        Injured or dead people            &    92 &     8 &    10 &   110 \\
+        Missing or found people           &     9 &     2 &     3 &    14 \\
         \hline
-        \textbf{Total}                         & \textbf{13.608} & \textbf{2.237} &
-                                                 \textbf{2.237}  & \textbf{18.082} \\
+        \textbf{Total}                    & \textbf{13.608} & \textbf{2.237} &
+                                            \textbf{2.237}  & \textbf{18.082} \\
         \hline
     \end{tabular}
 \end{table}
